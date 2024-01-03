@@ -80,18 +80,16 @@ feedBackRouter.post("/createOffice", async (req, res) => {
   }
 });
 
-feedBackRouter.delete("/deleteAllRecords/:model", async (req, res) => {
+feedBackRouter.delete("/deleteAllRecords", async (req, res) => {
   try {
     const modelName = req.params.model;
 
-    const deletedModelRecords = await feedBackService.deleteRecords(modelName);
+    const deletedModelRecords = await feedBackService.deleteRecords();
 
-    res
-      .status(201)
-      .json({
-        message: `Successfully deleted records from ${modelName} table`,
-        deletedModelRecords,
-      });
+    res.status(201).json({
+      message: `Successfully deleted records from ${modelName} table`,
+      deletedModelRecords,
+    });
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }

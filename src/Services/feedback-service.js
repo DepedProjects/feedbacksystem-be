@@ -7,12 +7,12 @@ const prisma = new PrismaClient({
 function formatDateStrings(feedback) {
   if (feedback.created_at) {
     const createdDate = new Date(feedback.created_at);
-    feedback.created_at = createdDate.toLocaleString(); // Adjust the formatting as needed
+    feedback.created_at = createdDate.toLocaleDateString(); // Adjust the formatting as needed
   }
 
   if (feedback.updated_at) {
     const updatedDate = new Date(feedback.updated_at);
-    feedback.updated_at = updatedDate.toLocaleString(); // Adjust the formatting as needed
+    feedback.updated_at = updatedDate.toLocaleDateString(); // Adjust the formatting as needed
   }
   return feedback;
 }
@@ -20,24 +20,20 @@ function formatDateStrings(feedback) {
 //submit feedback
 async function submitFeedback(feedbackData) {
   try {
-    // console.log("feedbackData:", feedbackData);
-
     const submitterData = {
       name: feedbackData.submitter.name,
       email: feedbackData.submitter.email,
       age: feedbackData.submitter.age,
       sex: feedbackData.submitter.sex,
     };
-
     const existingFeedback = await prisma.serviceFeedback.findFirst({
       where: {
         submitterId: feedbackData.submitter.id,
-        serviceId: feedbackData.serviceFeedback.serviceId,
+        serviceDesc: feedbackData.serviceFeedback.serviceDesc,
         serviceKindId: feedbackData.serviceFeedback.serviceKindId,
         officeId: feedbackData.serviceFeedback.officeId,
       },
     });
-
     if (existingFeedback) {
       return {
         message: "Duplicate feedback. Cannot submit again.",
@@ -48,7 +44,8 @@ async function submitFeedback(feedbackData) {
     const serviceFeedback = await feedbackDao.createServiceFeedback({
       ...feedbackData.serviceFeedback,
       submitterId: submitter.id,
-      comment: feedbackData.serviceFeedback.comment,
+      overallComment: feedbackData.serviceFeedback.overallComment,
+      overallRating: feedbackData.serviceFeedback.overallRating,
     });
 
     const feedbackQuestions = feedbackData.data.map(async (question) => {
@@ -66,13 +63,14 @@ async function submitFeedback(feedbackData) {
       data: [
         {
           id: submitter.id,
-          serviceId: feedbackData.serviceFeedback.serviceId,
+          serviceDesc: feedbackData.serviceFeedback.serviceDesc,
           serviceKindId: feedbackData.serviceFeedback.serviceKindId,
           officeVisited: feedbackData.serviceFeedback.officeId,
           form: feedbackData.data,
         },
       ],
-      comment: serviceFeedback.comment || feedbackData.comment,
+      overallComment: serviceFeedback.overallComment || feedbackData.overallComment,
+      overallRating: serviceFeedback.overallRating || feedbackData.overallRating,
     });
 
     return formattedResult;
@@ -81,6 +79,7 @@ async function submitFeedback(feedbackData) {
     throw new Error("Error in Process");
   }
 }
+
 
 //add category
 async function addCategory(data) {
@@ -202,9 +201,9 @@ async function addOffice(data) {
   }
 }
 
-async function deleteRecords(modelName) {
+async function deleteRecords() {
   try {
-    const deletedRecords = await feedbackDao.deleteAllRecords(modelName);
+    const deletedRecords = await feedbackDao.resetTables();
 
     return deletedRecords;
   } catch (error) {

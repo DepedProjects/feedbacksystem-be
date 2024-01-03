@@ -24,13 +24,14 @@ model ServiceFeedback {
   id                Int                @unique @default(autoincrement())
   submitter         Submitters         @relation(fields: [submitterId], references: [id])
   submitterId       Int
-  service           Services           @relation(fields: [serviceId], references: [id])
-  serviceId         Int
+  service           Services?          @relation(fields: [serviceDesc], references: [title])
+  serviceDesc       String
   serviceKind       ServiceKind        @relation(fields: [serviceKindId], references: [id])
   serviceKindId     Int
   officeVisited     Offices            @relation(fields: [officeId], references: [id])
   officeId          Int
-  comment           String?            
+  overallComment    String?
+  overallRating     Int
   feedbackQuestions FeedbackQuestion[]
   logs              Logs[]
   created_at        DateTime           @default(now())
@@ -52,7 +53,7 @@ model FeedbackQuestion {
 
 model Services {
   id               Int               @unique @default(autoincrement())
-  title            String
+  title            String?           @unique
   serviceFeedbacks ServiceFeedback[]
   created_at       DateTime          @default(now())
   updated_at       DateTime          @updatedAt
@@ -60,7 +61,7 @@ model Services {
 
 model ServiceKind {
   id               Int               @unique @default(autoincrement())
-  description      String
+  description      String?
   serviceFeedbacks ServiceFeedback[]
   created_at       DateTime          @default(now())
   updated_at       DateTime          @updatedAt

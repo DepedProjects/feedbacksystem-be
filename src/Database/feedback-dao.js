@@ -9,7 +9,6 @@ async function createSubmitter(data) {
     const createdSubmitter = await prisma.submitters.create({
       data,
     });
-
     return createdSubmitter;
   } catch (error) {
     console.error("Error creating user data! ", error);
@@ -19,21 +18,22 @@ async function createSubmitter(data) {
 
 async function createServiceFeedback(data) {
   try {
-    console.log("Comment Value:", data.comment); // Add this line
 
     const serviceFeedback = await prisma.serviceFeedback.create({
       data: {
         ...data,
-        comment: data.comment,
+        overallComment: data.overallComment,
+        overallRating: data.overallRating,
       },
     });
-
     return serviceFeedback;
   } catch (error) {
     console.error("Error creating service feedback!", error);
     throw new Error("Error creating service feedback");
   }
 }
+
+
 
 async function createFeedbackQuestion(data) {
   try {
@@ -48,18 +48,6 @@ async function createFeedbackQuestion(data) {
   }
 }
 
-async function createComment(data) {
-  try {
-    const comment = await prisma.create({
-      data,
-    });
-
-    return comment;
-  } catch (error) {
-    console.error("Error creating comment!", error);
-    throw new Error("Error creating comment");
-  }
-}
 
 async function createCategory(data) {
   try {
@@ -74,6 +62,7 @@ async function createCategory(data) {
   }
 }
 
+
 async function createQuestion(data) {
   try {
     const question = await prisma.questions.create({
@@ -86,6 +75,7 @@ async function createQuestion(data) {
     throw new Error("Error creating question");
   }
 }
+
 
 async function createServiceKind(data) {
   try {
@@ -100,6 +90,7 @@ async function createServiceKind(data) {
   }
 }
 
+
 async function createService(data) {
   try {
     const serviceType = await prisma.services.create({
@@ -112,6 +103,7 @@ async function createService(data) {
     throw new Error("Error creating question");
   }
 }
+
 
 async function createOffice(data) {
   try {
@@ -126,6 +118,7 @@ async function createOffice(data) {
   }
 }
 
+
 async function deleteAllRecords() {
   try {
     // Replace 'YourModel' with the actual name of your Prisma model (e.g., 'User')
@@ -137,15 +130,50 @@ async function deleteAllRecords() {
   }
 }
 
+
+async function resetTables() {
+  try {
+    
+    const deletedData = await prisma.$executeRaw `SET FOREIGN_KEY_CHECKS = 0;`;
+
+    const tableNames = [
+      'ServiceFeedback',
+      'Submitters',
+      'FeedbackQuestion',
+      'Services',
+      'ServiceKind',
+      'Logs',
+      'Categories',
+      'Questions',
+      'Offices',
+    ];
+
+    for (const tableName of tableNames) {
+      await prisma.$executeRaw `TRUNCATE TABLE ${tableName};`;
+    }
+
+    await prisma.$executeRaw `SET FOREIGN_KEY_CHECKS = 1;`;
+
+    console.log('Tables reset successfully.');
+
+  return deletedData;
+
+  } catch (error) {
+    console.error('Error resetting tables:', error);
+  }
+}
+
+
+
 module.exports = {
   createFeedbackQuestion,
   createServiceFeedback,
   createSubmitter,
-  createComment,
   createCategory,
   createQuestion,
   createServiceKind,
   createService,
   createOffice,
   deleteAllRecords,
+  resetTables,
 };
