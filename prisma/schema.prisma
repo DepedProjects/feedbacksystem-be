@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Submitters {
+  id               Int               @unique @default(autoincrement())
+  name             String?
+  email            String
+  age              Int
+  sex              String
+  serviceFeedbacks ServiceFeedback[]
+  Logs             Logs[]
+}
+
+model ServiceFeedback {
+  id                Int                @unique @default(autoincrement())
+  submitter         Submitters         @relation(fields: [submitterId], references: [id])
+  submitterId       Int
+  service           Services           @relation(fields: [serviceId], references: [id])
+  serviceId         Int
+  serviceKind       ServiceKind        @relation(fields: [serviceKindId], references: [id])
+  serviceKindId     Int
+  officeVisited     Offices            @relation(fields: [officeId], references: [id])
+  officeId          Int
+  comment           String?            
+  feedbackQuestions FeedbackQuestion[]
+  logs              Logs[]
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @updatedAt
+}
+
+model FeedbackQuestion {
+  id                Int             @unique @default(autoincrement())
+  category          Categories      @relation(fields: [categoryId], references: [id])
+  categoryId        Int
+  question          Questions       @relation(fields: [questionId], references: [id])
+  questionId        Int
+  rating            Int
+  serviceFeedback   ServiceFeedback @relation(fields: [serviceFeedbackId], references: [id])
+  serviceFeedbackId Int
+  created_at        DateTime        @default(now())
+  updated_at        DateTime        @updatedAt
+}
+
+model Services {
+  id               Int               @unique @default(autoincrement())
+  title            String
+  serviceFeedbacks ServiceFeedback[]
+  created_at       DateTime          @default(now())
+  updated_at       DateTime          @updatedAt
+}
+
+model ServiceKind {
+  id               Int               @unique @default(autoincrement())
+  description      String
+  serviceFeedbacks ServiceFeedback[]
+  created_at       DateTime          @default(now())
+  updated_at       DateTime          @updatedAt
+}
+
+model Logs {
+  id                Int             @unique @default(autoincrement())
+  user              Submitters      @relation(fields: [userId], references: [id])
+  userId            Int
+  serviceFeedback   ServiceFeedback @relation(fields: [serviceFeedbackId], references: [id])
+  serviceFeedbackId Int
+  created_at        DateTime        @default(now())
+}
+
+model Categories {
+  id               Int                @unique @default(autoincrement())
+  title            String
+  description      String?
+  FeedbackQuestion FeedbackQuestion[]
+  Questions        Questions[]
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @updatedAt
+}
+
+model Questions {
+  id               Int                @unique @default(autoincrement())
+  description      String
+  category         Categories         @relation(fields: [categoryId], references: [id])
+  categoryId       Int
+  FeedbackQuestion FeedbackQuestion[]
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @updatedAt
+}
+
+model Offices {
+  id              Int               @unique @default(autoincrement())
+  title           String
+  ServiceFeedback ServiceFeedback[]
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+}
