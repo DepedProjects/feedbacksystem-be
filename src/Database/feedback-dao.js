@@ -18,7 +18,6 @@ async function createSubmitter(data) {
 
 async function createServiceFeedback(data) {
   try {
-
     const serviceFeedback = await prisma.serviceFeedback.create({
       data: {
         ...data,
@@ -33,8 +32,6 @@ async function createServiceFeedback(data) {
   }
 }
 
-
-
 async function createFeedbackQuestion(data) {
   try {
     const feedbackQuestion = await prisma.feedbackQuestion.create({
@@ -47,7 +44,6 @@ async function createFeedbackQuestion(data) {
     throw new Error("Error creating question");
   }
 }
-
 
 async function createCategory(data) {
   try {
@@ -62,7 +58,6 @@ async function createCategory(data) {
   }
 }
 
-
 async function createQuestion(data) {
   try {
     const question = await prisma.questions.create({
@@ -75,7 +70,6 @@ async function createQuestion(data) {
     throw new Error("Error creating question");
   }
 }
-
 
 async function createServiceKind(data) {
   try {
@@ -90,7 +84,6 @@ async function createServiceKind(data) {
   }
 }
 
-
 async function createService(data) {
   try {
     const serviceType = await prisma.services.create({
@@ -103,7 +96,6 @@ async function createService(data) {
     throw new Error("Error creating question");
   }
 }
-
 
 async function createOffice(data) {
   try {
@@ -118,7 +110,6 @@ async function createOffice(data) {
   }
 }
 
-
 async function deleteAllRecords() {
   try {
     // Replace 'YourModel' with the actual name of your Prisma model (e.g., 'User')
@@ -130,16 +121,15 @@ async function deleteAllRecords() {
   }
 }
 
-
-async function getSubmittersByDate (startDate, endDate) {
+async function getSubmittersByDate(startDate, endDate) {
   try {
     if (startDate) {
       startDate.setHours(0, 0, 0, 0);
-    if (!endDate) {
-      endDate = new Date(startDate);
-      endDate.setHours(23, 59, 99, 999);
+      if (!endDate) {
+        endDate = new Date(startDate);
+        endDate.setHours(23, 59, 99, 999);
+      }
     }
-  }
     const submitters = await prisma.submitters.findMany({
       include: {
         serviceFeedbacks: {
@@ -170,26 +160,65 @@ async function countSubmittersByRating(questionId, rating, ratingCount) {
         questionId: parseInt(questionId, 10),
         rating: rating ? parseInt(rating, 10) : undefined,
       },
+      orderBy: {
+        rating: 'asc',
+      },
     });
 
     if (ratingCount) {
-      return result.map(item => ({
+      return result.map((item) => ({
         questionId: parseInt(questionId, 10),
-        ...item,
+        rating: item.rating,
+        ratingCount: item._count.rating,
+        submitters: [],
       }));
     } else {
-      // If ratingCount is not requested, extract only the count value
-      return result.map(item => ({
-        questionId: parseInt(questionId, 10),
-        [item.rating]: item._count.rating,
-      }));
+      console.log('Fetching submitters for:', questionId, rating);
+
+      const submittersResult = await prisma.serviceFeedback.findMany({
+        where: {
+          feedbackQuestion: {
+            questionId: parseInt(questionId, 10),
+            rating: rating ? parseInt(rating, 10) : undefined,
+          },
+        },
+        include: {
+          submitter: true,
+        },
+      });
+
+      console.log('Fetched submitters:', submittersResult);
+
+      const mappedResult = result.map((item) => {
+        const matchingSubmitters = submittersResult.filter(
+          (submitter) => submitter.feedbackQuestion.rating === item.rating
+        );
+
+        const submittersDetails = matchingSubmitters.map((matchingSubmitter) => ({
+          submitterId: matchingSubmitter.submitter.id,
+          name: matchingSubmitter.submitter.name,
+          email: matchingSubmitter.submitter.email,
+          age: matchingSubmitter.submitter.age,
+          sex: matchingSubmitter.submitter.sex,
+        }));
+
+        return {
+          questionId: parseInt(questionId, 10),
+          rating: item.rating,
+          ratingCount: item._count.rating,
+          submitters: ratingCount ? [] : submittersDetails,
+        };
+      });
+
+      console.log('Mapped result:', mappedResult);
+
+      return mappedResult;
     }
   } catch (error) {
     console.error(error);
     throw new Error('Error counting submitters by rating');
   }
 }
-
 
 
 module.exports = {
@@ -204,4 +233,4 @@ module.exports = {
   deleteAllRecords,
   getSubmittersByDate,
   countSubmittersByRating,
-}
+};
