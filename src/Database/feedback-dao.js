@@ -131,35 +131,62 @@ async function deleteAllRecords() {
 }
 
 
-async function resetTables() {
+async function getSubmittersByDate (startDate, endDate) {
   try {
-    
-    const deletedData = await prisma.$executeRaw `SET FOREIGN_KEY_CHECKS = 0;`;
-
-    const tableNames = [
-      'ServiceFeedback',
-      'Submitters',
-      'FeedbackQuestion',
-      'Services',
-      'ServiceKind',
-      'Logs',
-      'Categories',
-      'Questions',
-      'Offices',
-    ];
-
-    for (const tableName of tableNames) {
-      await prisma.$executeRaw `TRUNCATE TABLE ${tableName};`;
+    if (startDate) {
+      startDate.setHours(0, 0, 0, 0);
+    if (!endDate) {
+      endDate = new Date(startDate);
+      endDate.setHours(23, 59, 99, 999);
     }
+  }
+    const submitters = await prisma.submitters.findMany({
+      include: {
+        serviceFeedbacks: {
+          where: {
+            created_at: {
+              gte: startDate,
+              lte: endDate,
+            },
+          },
+        },
+      },
+    });
 
-    await prisma.$executeRaw `SET FOREIGN_KEY_CHECKS = 1;`;
-
-    console.log('Tables reset successfully.');
-
-  return deletedData;
-
+    return submitters;
   } catch (error) {
-    console.error('Error resetting tables:', error);
+    console.error("Error searching table data:", error);
+  }
+}
+
+async function countSubmittersByRating(questionId, rating, ratingCount) {
+  try {
+    const result = await prisma.feedbackQuestion.groupBy({
+      by: ['rating'],
+      _count: {
+        rating: true,
+      },
+      where: {
+        questionId: parseInt(questionId, 10),
+        rating: rating ? parseInt(rating, 10) : undefined,
+      },
+    });
+
+    if (ratingCount) {
+      return result.map(item => ({
+        questionId: parseInt(questionId, 10),
+        ...item,
+      }));
+    } else {
+      // If ratingCount is not requested, extract only the count value
+      return result.map(item => ({
+        questionId: parseInt(questionId, 10),
+        [item.rating]: item._count.rating,
+      }));
+    }
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error counting submitters by rating');
   }
 }
 
@@ -175,5 +202,6 @@ module.exports = {
   createService,
   createOffice,
   deleteAllRecords,
-  resetTables,
-};
+  getSubmittersByDate,
+  countSubmittersByRating,
+}

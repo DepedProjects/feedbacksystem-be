@@ -95,4 +95,39 @@ feedBackRouter.delete("/deleteAllRecords", async (req, res) => {
   }
 });
 
+feedBackRouter.get("/submittersByDate", async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    let feedbackSubmitters;
+
+    if (startDate) {
+      feedbackSubmitters = await feedBackService.dateRangeFilter(
+        new Date(startDate),
+        endDate && new Date(endDate)
+      );
+    } else {
+      feedbackSubmitters = await feedBackService.dateRangeFilter();
+    }
+
+    res.json({ feedbackSubmitters });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+feedBackRouter.get('/rating-count/:questionId', async (req, res) => {
+  try {
+    const { questionId } = req.params;
+    const { rating, ratingCount } = req.query;
+
+    const result = await feedBackService.countSubmittersByRating(questionId, rating, ratingCount);
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 module.exports = feedBackRouter;

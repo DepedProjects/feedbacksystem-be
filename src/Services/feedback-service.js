@@ -212,6 +212,29 @@ async function deleteRecords() {
   }
 }
 
+
+async function dateRangeFilter (startDate, endDate) {
+  try {
+    const filteredData = await feedbackDao.getSubmittersByDate(startDate, endDate);
+
+    return filteredData;
+  } catch (error) {
+    console.error("Error!", error);
+    throw new Error("Error in Process");
+  }
+}
+
+
+async function countSubmittersByRating(questionId, rating, ratingCount) {
+  try {
+    const result = await feedbackDao.countSubmittersByRating(questionId, rating, ratingCount);
+    return result;
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error in feedback service');
+  }
+}
+
 module.exports = {
   submitFeedback,
   addCategory,
@@ -221,4 +244,6 @@ module.exports = {
   addOffice,
   formatDateStrings,
   deleteRecords,
+  dateRangeFilter,
+  countSubmittersByRating,
 };
