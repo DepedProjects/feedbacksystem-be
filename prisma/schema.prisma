@@ -32,6 +32,7 @@ model ServiceFeedback {
   officeId          Int
   overallComment    String?
   overallRating     Int
+  uniqueIdentifier String
   feedbackQuestions FeedbackQuestion[]
   logs              Logs[]
   created_at        DateTime           @default(now())
@@ -54,6 +55,8 @@ model FeedbackQuestion {
 model Services {
   id               Int               @unique @default(autoincrement())
   title            String?           @unique
+  office           Offices           @relation(fields: [officeId], references: [id])
+  officeId         Int
   serviceFeedbacks ServiceFeedback[]
   created_at       DateTime          @default(now())
   updated_at       DateTime          @updatedAt
@@ -102,4 +105,5 @@ model Offices {
   ServiceFeedback ServiceFeedback[]
   created_at      DateTime          @default(now())
   updated_at      DateTime          @updatedAt
+  Services        Services[]
 }

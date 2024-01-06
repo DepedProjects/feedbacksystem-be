@@ -17,37 +17,70 @@ function formatDateStrings(feedback) {
   return feedback;
 }
 
+
+// const submitterData = {
+//   //   name: feedbackData.submitter.name,
+//   //   email: feedbackData.submitter.email,
+//   //   age: feedbackData.submitter.age,
+//   //   sex: feedbackData.submitter.sex,
+//   // };
+
 //submit feedback
 async function submitFeedback(feedbackData) {
   try {
-    const submitterData = {
-      name: feedbackData.submitter.name,
-      email: feedbackData.submitter.email,
-      age: feedbackData.submitter.age,
-      sex: feedbackData.submitter.sex,
-    };
-    const existingFeedback = await prisma.serviceFeedback.findFirst({
+    // Check for existing submitter based on email
+    const existingSubmitter = await prisma.submitters.findFirst({
       where: {
-        submitterId: feedbackData.submitter.id,
-        serviceDesc: feedbackData.serviceFeedback.serviceDesc,
-        serviceKindId: feedbackData.serviceFeedback.serviceKindId,
-        officeId: feedbackData.serviceFeedback.officeId,
+        email: feedbackData.submitter.email,
       },
     });
+
+    let submitter;
+    if (existingSubmitter) {
+      // Use the existing submitter if found
+      submitter = existingSubmitter;
+    } else {
+      // Create a new submitter if not found
+      submitter = await feedbackDao.createSubmitter({
+        name: feedbackData.submitter.name,
+        email: feedbackData.submitter.email,
+        age: feedbackData.submitter.age,
+        sex: feedbackData.submitter.sex,
+      });
+    }
+
+    // Check for duplicate feedback using the unique identifier
+    const serviceFeedbackIdentifier = JSON.stringify({
+      serviceDesc: feedbackData.serviceFeedback.serviceDesc,
+      serviceKindId: feedbackData.serviceFeedback.serviceKindId,
+      officeId: feedbackData.serviceFeedback.officeId,
+      overallComment: feedbackData.serviceFeedback.overallComment,
+      overallRating: feedbackData.serviceFeedback.overallRating,
+    });
+
+    const existingFeedback = await prisma.serviceFeedback.findFirst({
+      where: {
+        submitterId: submitter.id,
+        uniqueIdentifier: serviceFeedbackIdentifier,
+      },
+    });
+
     if (existingFeedback) {
       return {
         message: "Duplicate feedback. Cannot submit again.",
       };
     }
 
-    const submitter = await feedbackDao.createSubmitter(submitterData);
+    // Create serviceFeedback using the existing or new submitter
     const serviceFeedback = await feedbackDao.createServiceFeedback({
       ...feedbackData.serviceFeedback,
       submitterId: submitter.id,
       overallComment: feedbackData.serviceFeedback.overallComment,
       overallRating: feedbackData.serviceFeedback.overallRating,
+      uniqueIdentifier: serviceFeedbackIdentifier,
     });
 
+    // Create feedback questions
     const feedbackQuestions = feedbackData.data.map(async (question) => {
       return feedbackDao.createFeedbackQuestion({
         ...question,
@@ -71,14 +104,17 @@ async function submitFeedback(feedbackData) {
       ],
       overallComment: serviceFeedback.overallComment || feedbackData.overallComment,
       overallRating: serviceFeedback.overallRating || feedbackData.overallRating,
+      created_at: serviceFeedback.created_at,
+      updated_at: serviceFeedback.updated_at,
     });
 
     return formattedResult;
   } catch (error) {
-    console.error("Error!", error);
+    console.error("Error in submitFeedback:", error);
     throw new Error("Error in Process");
   }
 }
+
 
 
 //add category

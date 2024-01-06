@@ -2,18 +2,18 @@ const express = require("express");
 const feedBackRouter = express.Router();
 const feedBackService = require("../Services/feedback-service");
 
-feedBackRouter.post("/submitFeedback", async (req, res) => {
-  try {
-    const feedbackData = req.body;
+  feedBackRouter.post("/submitFeedback", async (req, res) => {
+    try {
+      const feedbackData = req.body;
 
-    const createdFeedback = await feedBackService.submitFeedback(feedbackData);
+      const createdFeedback = await feedBackService.submitFeedback(feedbackData);
 
-    res.status(201).json(createdFeedback);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+      res.status(201).json(createdFeedback);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
 
 feedBackRouter.post("/createCategory", async (req, res) => {
   try {
