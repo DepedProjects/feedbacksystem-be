@@ -91,6 +91,7 @@ model Categories {
 
 model Questions {
   id               Int                @unique @default(autoincrement())
+  title String @unique
   description      String
   category         Categories         @relation(fields: [categoryId], references: [id])
   categoryId       Int

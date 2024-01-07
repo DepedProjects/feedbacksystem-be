@@ -51,6 +51,7 @@ async function submitFeedback(feedbackData) {
 
     // Check for duplicate feedback using the unique identifier
     const serviceFeedbackIdentifier = JSON.stringify({
+      submitterId: feedbackData.submitter.id,
       serviceDesc: feedbackData.serviceFeedback.serviceDesc,
       serviceKindId: feedbackData.serviceFeedback.serviceKindId,
       officeId: feedbackData.serviceFeedback.officeId,
@@ -114,6 +115,7 @@ async function submitFeedback(feedbackData) {
     throw new Error("Error in Process");
   }
 }
+
 
 
 
