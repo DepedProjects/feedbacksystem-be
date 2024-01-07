@@ -2,6 +2,15 @@ const express = require("express");
 const feedBackRouter = express.Router();
 const feedBackService = require("../Services/feedback-service");
 
+
+
+  // feedBackRouter.get("/testing", (req, res) => {
+  //   res.json ({
+  //     success: true,
+  //     message: "working...."
+  //   })
+  // })
+
   feedBackRouter.post("/submitFeedback", async (req, res) => {
     try {
       const feedbackData = req.body;
