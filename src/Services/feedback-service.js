@@ -18,6 +18,16 @@ function formatDateStrings(feedback) {
   return feedback;
 }
 
+async function fetchAllQuestions() {
+  try {
+    const fetchQuestions = await feedbackDao.getAllQuestions();
+    return fetchQuestions;
+  } catch (error) {
+    console.error("Error in fetchAllQuestions:", error);
+    throw new Error("Error in Process");
+  }
+}
+
 // const submitterData = {
 //   //   name: feedbackData.submitter.name,
 //   //   email: feedbackData.submitter.email,
@@ -278,6 +288,7 @@ async function countSubmittersByRating(questionId, rating, ratingCount) {
 }
 
 module.exports = {
+  fetchAllQuestions,
   submitFeedback,
   addCategory,
   addQuestion,

@@ -4,6 +4,16 @@ const prisma = new PrismaClient();
 //   log: ["query", "info", "warn"],
 // }
 
+async function getAllQuestions() {
+  try {
+    const questions = await prisma.questions.findMany();
+    return questions;
+  } catch (error) {
+    console.error("Error creating user data! ", error);
+    throw new Error("Error creating user data");
+  }
+}
+
 async function createSubmitter(data) {
   try {
     const createdSubmitter = await prisma.submitters.create({
@@ -222,6 +232,7 @@ async function countSubmittersByRating(questionId, rating, ratingCount) {
 
 
 module.exports = {
+  getAllQuestions,
   createFeedbackQuestion,
   createServiceFeedback,
   createSubmitter,

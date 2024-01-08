@@ -2,27 +2,35 @@ const express = require("express");
 const feedBackRouter = express.Router();
 const feedBackService = require("../Services/feedback-service");
 
+feedBackRouter.get("/questions", async (req, res) => {
+  try {
+    const questions = await feedBackService.fetchAllQuestions();
+    res.json(questions);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
-
-  feedBackRouter.get("/testing", (req, res) => {
-    res.json ({
-      success: true,
-      message: "working.... Volume mounted in the working container"
-    })
-  })
-
-  feedBackRouter.post("/submitFeedback", async (req, res) => {
-    try {
-      const feedbackData = req.body;
-
-      const createdFeedback = await feedBackService.submitFeedback(feedbackData);
-
-      res.status(201).json(createdFeedback);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
+feedBackRouter.get("/testing", (req, res) => {
+  res.json({
+    success: true,
+    message: "working.... Volume mounted in the working container",
   });
+});
+
+feedBackRouter.post("/submitFeedback", async (req, res) => {
+  try {
+    const feedbackData = req.body;
+
+    const createdFeedback = await feedBackService.submitFeedback(feedbackData);
+
+    res.status(201).json(createdFeedback);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 feedBackRouter.post("/createCategory", async (req, res) => {
   try {
@@ -126,16 +134,20 @@ feedBackRouter.get("/submittersByDate", async (req, res) => {
   }
 });
 
-feedBackRouter.get('/rating-count/:questionId', async (req, res) => {
+feedBackRouter.get("/rating-count/:questionId", async (req, res) => {
   try {
     const { questionId } = req.params;
     const { rating, ratingCount } = req.query;
 
-    const result = await feedBackService.countSubmittersByRating(questionId, rating, ratingCount);
+    const result = await feedBackService.countSubmittersByRating(
+      questionId,
+      rating,
+      ratingCount
+    );
     res.json(result);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
