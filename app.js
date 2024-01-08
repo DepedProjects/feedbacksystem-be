@@ -6,10 +6,20 @@ require('dotenv').config();
 
 
 const app  = express();
+const cors = require("cors");
+const corsOptions = require("./src/middlewares/corsConfig/corsOptions");
+const credentials = require("./src/middlewares/corsConfig/credentials");
 const prisma  = new PrismaClient();
 const port = process.env.PORT || 9000;
 
 app.use(express.json());
+
+// Handle options credentials check - before CORS!
+// and fetch cookies credentials requirement
+app.use(credentials);
+
+// Cross Origin Resource Sharing
+app.use(cors(corsOptions));
 
 app.use(( req, res, next) => {
     req.prisma = prisma;

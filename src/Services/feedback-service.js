@@ -1,8 +1,9 @@
 const feedbackDao = require("../Database/feedback-dao");
 const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient({
-  log: ["query", "info", "warn"],
-});
+const prisma = new PrismaClient();
+//   {
+//    log: ["query", "info", "warn"],
+// }
 
 function formatDateStrings(feedback) {
   if (feedback.created_at) {
@@ -16,7 +17,6 @@ function formatDateStrings(feedback) {
   }
   return feedback;
 }
-
 
 // const submitterData = {
 //   //   name: feedbackData.submitter.name,
@@ -103,8 +103,10 @@ async function submitFeedback(feedbackData) {
           form: feedbackData.data,
         },
       ],
-      overallComment: serviceFeedback.overallComment || feedbackData.overallComment,
-      overallRating: serviceFeedback.overallRating || feedbackData.overallRating,
+      overallComment:
+        serviceFeedback.overallComment || feedbackData.overallComment,
+      overallRating:
+        serviceFeedback.overallRating || feedbackData.overallRating,
       created_at: serviceFeedback.created_at,
       updated_at: serviceFeedback.updated_at,
     });
@@ -115,9 +117,6 @@ async function submitFeedback(feedbackData) {
     throw new Error("Error in Process");
   }
 }
-
-
-
 
 //add category
 async function addCategory(data) {
@@ -250,10 +249,12 @@ async function deleteRecords() {
   }
 }
 
-
-async function dateRangeFilter (startDate, endDate) {
+async function dateRangeFilter(startDate, endDate) {
   try {
-    const filteredData = await feedbackDao.getSubmittersByDate(startDate, endDate);
+    const filteredData = await feedbackDao.getSubmittersByDate(
+      startDate,
+      endDate
+    );
 
     return filteredData;
   } catch (error) {
@@ -262,14 +263,17 @@ async function dateRangeFilter (startDate, endDate) {
   }
 }
 
-
 async function countSubmittersByRating(questionId, rating, ratingCount) {
   try {
-    const result = await feedbackDao.countSubmittersByRating(questionId, rating, ratingCount);
+    const result = await feedbackDao.countSubmittersByRating(
+      questionId,
+      rating,
+      ratingCount
+    );
     return result;
   } catch (error) {
     console.error(error);
-    throw new Error('Error in feedback service');
+    throw new Error("Error in feedback service");
   }
 }
 
