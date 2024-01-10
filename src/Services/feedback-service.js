@@ -133,7 +133,7 @@ async function submitFeedback(feedbackData) {
     // Check for duplicate feedback using the unique identifier
     const serviceFeedbackIdentifier = JSON.stringify({
       submitterId: feedbackData.submitter.id,
-      serviceDesc: feedbackData.serviceFeedback.serviceDesc,
+      serviceDesc: feedbackData.serviceFeedback.serviceDesc || null,
       serviceKindId: feedbackData.serviceFeedback.serviceKindId,
       officeId: feedbackData.serviceFeedback.officeId,
       overallComment: feedbackData.serviceFeedback.overallComment,
