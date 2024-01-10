@@ -2,6 +2,7 @@
 const express = require("express")
 const { PrismaClient } = require("@prisma/client")
 const Routes = require ("./src/middlewares/routeConfig")
+const clear = require ("clear")
 require('dotenv').config();
 
 
@@ -28,6 +29,9 @@ app.use(( req, res, next) => {
 
 Routes(app, prisma);
 
-app.listen(port, () => console.log(`Server running on port ${port}`))
+app.listen(port, () => {
+    clear(); // Clear the terminal when the server starts
+    console.log(`Server running on port ${port}`);
+});
 
 module.exports = { prisma, };
