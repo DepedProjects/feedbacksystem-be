@@ -4,13 +4,75 @@ const prisma = new PrismaClient();
 //   log: ["query", "info", "warn"],
 // }
 
+//GET ALL
+
 async function getAllQuestions() {
   try {
     const questions = await prisma.questions.findMany();
     return questions;
   } catch (error) {
-    console.error("Error creating user data! ", error);
-    throw new Error("Error creating user data");
+    console.error("Error retrieving users data! ", error);
+    throw new Error("Error retrieving users data");
+  }
+}
+
+async function getAllServices() {
+  try {
+    const services = await prisma.services.findMany();
+    return services;
+  } catch (error) {
+    console.error("Error retrieving services data! ", error);
+    throw new Error("Error retrieving services data");
+  }
+}
+
+async function getAllCategories() {
+  try {
+    const categories = await prisma.categories.findMany();
+    return categories;
+  } catch (error) {
+    console.error("Error retrieving categories data! ", error);
+    throw new Error("Error retrieving categories data");
+  }
+}
+
+async function getAllFeedbacks() {
+  try {
+    const feedbacks = await prisma.serviceFeedback.findMany();
+    return feedbacks;
+  } catch (error) {
+    console.error("Error retrieving feedbacks data! ", error);
+    throw new Error("Error retrieving feedbacks data");
+  }
+}
+
+async function getAllOffices() {
+  try {
+    const offices = await prisma.offices.findMany();
+    return offices;
+  } catch (error) {
+    console.error("Error retrieving offices data! ", error);
+    throw new Error("Error retrieving offices data");
+  }
+}
+
+async function getAllSubmitters() {
+  try {
+    const submitters = await prisma.submitters.findMany();
+    return offices;
+  } catch (error) {
+    console.error("Error retrieving submitters data!");
+    throw new Error ("Error retrieving submitters data");
+  }
+}
+
+async function getAllServiceKinds() {
+  try {
+    const kind = await prisma.serviceKind.findMany();
+    return kind;
+  } catch (error) {
+    console.error("Error retrieving service kind data!");
+    throw new Error ("Error retrieving service kind data");
   }
 }
 
@@ -26,6 +88,9 @@ async function createSubmitter(data) {
   }
 }
 
+
+
+//CREATE
 async function createServiceFeedback(data) {
   try {
     const serviceFeedback = await prisma.serviceFeedback.create({
@@ -120,6 +185,9 @@ async function createOffice(data) {
   }
 }
 
+
+
+//DELETE
 async function deleteAllRecords() {
   try {
     // Replace 'YourModel' with the actual name of your Prisma model (e.g., 'User')
@@ -131,6 +199,9 @@ async function deleteAllRecords() {
   }
 }
 
+
+
+//OTHERS
 async function getSubmittersByDate(startDate, endDate) {
   try {
     if (startDate) {
@@ -233,6 +304,13 @@ async function countSubmittersByRating(questionId, rating, ratingCount) {
 
 module.exports = {
   getAllQuestions,
+  getAllServices,
+  getAllCategories,
+  getAllFeedbacks,
+  getAllFeedbacks,
+  getAllOffices,
+  getAllSubmitters,
+  getAllServiceKinds,
   createFeedbackQuestion,
   createServiceFeedback,
   createSubmitter,

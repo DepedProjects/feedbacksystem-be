@@ -12,6 +12,66 @@ feedBackRouter.get("/questions", async (req, res) => {
   }
 });
 
+feedBackRouter.get("/services", async (req, res) => {
+  try {
+    const services = await feedBackService.fetchAllServices();
+    res.json(services);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+feedBackRouter.get("/categories", async (req, res) => {
+  try {
+    const categories = await feedBackService.fetchAllCategories();
+    res.json(categories);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+feedBackRouter.get("/feedbacks", async (req, res) => {
+  try {
+    const feedbacks = await feedBackService.fetchAllFeedbacks();
+    res.json(feedbacks);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+feedBackRouter.get("/offices", async (req, res) => {
+  try {
+    const offices = await feedBackService.fetchAllOffices();
+    res.json(offices);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+feedBackRouter.get("/submitters", async (req, res) => {
+  try {
+    const submitters = await feedBackService.fetchAllSubmitters();
+    res.json(submitters);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+feedBackRouter.get("/servicekinds", async (req, res) => {
+  try {
+    const serviceKinds = await feedBackService.fetchAllServiceKinds();
+    res.json(serviceKinds);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 feedBackRouter.get("/testing", (req, res) => {
   res.json({
     success: true,
@@ -97,21 +157,6 @@ feedBackRouter.post("/createOffice", async (req, res) => {
   }
 });
 
-feedBackRouter.delete("/deleteAllRecords", async (req, res) => {
-  try {
-    const modelName = req.params.model;
-
-    const deletedModelRecords = await feedBackService.deleteRecords();
-
-    res.status(201).json({
-      message: `Successfully deleted records from ${modelName} table`,
-      deletedModelRecords,
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
 feedBackRouter.get("/submittersByDate", async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -134,21 +179,6 @@ feedBackRouter.get("/submittersByDate", async (req, res) => {
   }
 });
 
-feedBackRouter.get("/rating-count/:questionId", async (req, res) => {
-  try {
-    const { questionId } = req.params;
-    const { rating, ratingCount } = req.query;
 
-    const result = await feedBackService.countSubmittersByRating(
-      questionId,
-      rating,
-      ratingCount
-    );
-    res.json(result);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
 
 module.exports = feedBackRouter;

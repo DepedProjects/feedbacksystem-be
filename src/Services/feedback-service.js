@@ -18,22 +18,93 @@ function formatDateStrings(feedback) {
   return feedback;
 }
 
-async function fetchAllQuestions() {
+//FETCH ALL DATA
+async function fetchAllServices() {
   try {
-    const fetchQuestions = await feedbackDao.getAllQuestions();
-    return fetchQuestions;
+    const fetchedServices = await feedbackDao.getAllServices();
+    return fetchedServices;
   } catch (error) {
-    console.error("Error in fetchAllQuestions:", error);
+    console.error("Error in Process:", error);
     throw new Error("Error in Process");
   }
 }
 
-// const submitterData = {
-//   //   name: feedbackData.submitter.name,
-//   //   email: feedbackData.submitter.email,
-//   //   age: feedbackData.submitter.age,
-//   //   sex: feedbackData.submitter.sex,
-//   // };
+async function fetchAllQuestions() {
+  try {
+    const questions = await feedbackDao.getAllQuestions();
+
+    const questionWithCategorytitle = await Promise.all(
+      questions.map(async (question) => {
+
+        const category =await prisma.categories.findUnique({
+          where: {
+            id: question.categoryId,
+          },
+        });
+
+        return {
+          ...question,
+          categoryTitle: category.title,
+        };
+      })
+    );
+
+    return questionWithCategorytitle;
+  } catch (error) {
+    console.error("Error in Process:", error);
+    throw new Error("Error in Process");
+  }
+}
+
+async function fetchAllCategories() {
+  try {
+    const fetchedCategories = await feedbackDao.getAllCategories();
+    return fetchedCategories;
+  } catch (error) {
+    console.error("Error in Process:", error);
+    throw new Error("Error in Process");
+  }
+}
+
+async function fetchAllFeedbacks() {
+  try {
+    const fetchedFeedbacks = await feedbackDao.getAllFeedbacks();
+    return fetchedFeedbacks;
+  } catch (error) {
+    console.error("Error in Process:", error);
+    throw new Error("Error in Process");
+  }
+}
+
+async function fetchAllOffices() {
+  try {
+    const fetchedOffices = await feedbackDao.getAllOffices();
+    return fetchedOffices;
+  } catch (error) {
+    console.error("Error in Process:", error);
+    throw new Error("Error in Process");
+  }
+}
+
+async function fetchAllSubmitters() {
+  try {
+    const fetchedSubmitters = await feedbackDao.getAllSubmitters();
+    return fetchedSubmitters;
+  } catch (error) {
+    console.error("Error in Process:", error);
+    throw new Error("Error in Process");
+  }
+}
+
+async function fetchAllServiceKinds() {
+  try {
+    const fetchedServiceKind = await feedbackDao.getAllServiceKinds();
+    return fetchedServiceKind;
+  } catch (error) {
+    console.error("Error in Process:", error);
+    throw new Error("Error in Process");
+  }
+}
 
 //submit feedback
 async function submitFeedback(feedbackData) {
@@ -248,17 +319,6 @@ async function addOffice(data) {
   }
 }
 
-async function deleteRecords() {
-  try {
-    const deletedRecords = await feedbackDao.resetTables();
-
-    return deletedRecords;
-  } catch (error) {
-    console.error("Error!", error);
-    throw new Error("Error in Process");
-  }
-}
-
 async function dateRangeFilter(startDate, endDate) {
   try {
     const filteredData = await feedbackDao.getSubmittersByDate(
@@ -273,22 +333,16 @@ async function dateRangeFilter(startDate, endDate) {
   }
 }
 
-async function countSubmittersByRating(questionId, rating, ratingCount) {
-  try {
-    const result = await feedbackDao.countSubmittersByRating(
-      questionId,
-      rating,
-      ratingCount
-    );
-    return result;
-  } catch (error) {
-    console.error(error);
-    throw new Error("Error in feedback service");
-  }
-}
+
 
 module.exports = {
   fetchAllQuestions,
+  fetchAllServices,
+  fetchAllCategories,
+  fetchAllFeedbacks,
+  fetchAllOffices,
+  fetchAllSubmitters,
+  fetchAllServiceKinds,
   submitFeedback,
   addCategory,
   addQuestion,
@@ -296,7 +350,5 @@ module.exports = {
   addServiceType,
   addOffice,
   formatDateStrings,
-  deleteRecords,
   dateRangeFilter,
-  countSubmittersByRating,
 };
