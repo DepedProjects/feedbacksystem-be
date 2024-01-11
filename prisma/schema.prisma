@@ -27,7 +27,6 @@ model ServiceFeedback {
   submitterId       Int
   service           Services?          @relation(fields: [serviceDesc], references: [title])
   serviceDesc       String
-  otherservice String 
   serviceKind       ServiceKind        @relation(fields: [serviceKindId], references: [id])
   serviceKindId     Int
   officeVisited     Offices            @relation(fields: [officeId], references: [id])
@@ -59,7 +58,6 @@ model Services {
   title            String?           @unique
   office           Offices           @relation(fields: [officeId], references: [id])
   officeId         Int
-  otherServiceDesc String?
   serviceFeedbacks ServiceFeedback[]
   created_at       DateTime          @default(now())
   updated_at       DateTime          @updatedAt
