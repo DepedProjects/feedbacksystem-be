@@ -1,6 +1,7 @@
 const feedbackDao = require("../Database/feedback-dao");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const { v4: uuidv4 } = require('uuid');
 //   {
 //    log: ["query", "info", "warn"],
 // }
@@ -159,7 +160,7 @@ async function submitFeedback(feedbackData) {
       submitterId: submitter.id,
       overallComment: feedbackData.serviceFeedback.overallComment,
       overallRating: feedbackData.serviceFeedback.overallRating,
-      uniqueIdentifier: serviceFeedbackIdentifier,
+      uniqueIdentifier: uuidv4(),
     });
 
     // Create feedback questions
