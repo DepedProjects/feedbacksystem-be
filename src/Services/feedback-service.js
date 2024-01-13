@@ -176,10 +176,12 @@ async function submitFeedback(feedbackData) {
     const formattedResult = formatDateStrings({
       message: "Successfully Submitted your response! ",
       feedbackId: serviceFeedback.id,
+      uniqueIdentifier: serviceFeedback.uniqueIdentifier,
       data: [
         {
           id: submitter.id,
-          serviceDesc: feedbackData.serviceFeedback.serviceDesc,
+          serviceId: feedbackData.serviceFeedback.serviceId,
+          otherService: feedbackData.serviceFeedback.otherService,
           serviceKindId: feedbackData.serviceFeedback.serviceKindId,
           officeVisited: feedbackData.serviceFeedback.officeId,
           form: feedbackData.data,
@@ -276,17 +278,6 @@ async function addServiceKind(data) {
 //add specific type of service
 async function addServiceType(data) {
   try {
-    const existingServiceType = await prisma.services.findFirst({
-      where: {
-        officeId: data.officeId,
-      },
-    });
-
-    if (existingServiceType) {
-      return {
-        message: "Duplicate service. Please choose a different one",
-      };
-    }
     const newServiceType = await feedbackDao.createService(data);
     const formattedResult = formatDateStrings(newServiceType);
 

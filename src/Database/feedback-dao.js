@@ -76,7 +76,12 @@ async function getAllServiceKinds() {
 async function createSubmitter(data) {
   try {
     const createdSubmitter = await prisma.submitters.create({
-      data,
+      data: {
+        name: data.name,
+        email: data.email,
+        age: data.age,
+        sex: data.sex
+      }
     });
     return createdSubmitter;
   } catch (error) {
@@ -159,11 +164,7 @@ async function createServiceKind(data) {
 async function createService(data) {
   try {
     const serviceType = await prisma.services.create({
-      data: {
-        title: data.title,
-        officeId: data.officeId,
-        serviceKind: data.serviceKind
-      },
+      data,
     });
 
     return serviceType;
