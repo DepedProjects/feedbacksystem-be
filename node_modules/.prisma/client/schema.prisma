@@ -25,8 +25,8 @@ model ServiceFeedback {
   id                Int                @unique @default(autoincrement())
   submitter         Submitters         @relation(fields: [submitterId], references: [id])
   submitterId       Int
-  service           Services?          @relation(fields: [serviceDesc], references: [title])
-  serviceDesc       String
+  service           Services?          @relation(fields: [serviceId], references: [id])
+  serviceId         Int
   otherService      String?
   serviceKind       ServiceKind        @relation(fields: [serviceKindId], references: [id])
   serviceKindId     Int
@@ -56,7 +56,7 @@ model FeedbackQuestion {
 
 model Services {
   id               Int               @unique @default(autoincrement())
-  title            String?           @unique @default("Others")
+  title            String?
   office           Offices           @relation(fields: [officeId], references: [id])
   officeId         Int
   serviceKind      ServiceKind       @relation(fields: [serviceKindId], references: [id])

@@ -278,7 +278,7 @@ async function addServiceType(data) {
   try {
     const existingServiceType = await prisma.services.findFirst({
       where: {
-        title: data.title,
+        officeId: data.officeId,
       },
     });
 

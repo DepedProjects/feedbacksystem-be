@@ -159,13 +159,17 @@ async function createServiceKind(data) {
 async function createService(data) {
   try {
     const serviceType = await prisma.services.create({
-      data,
+      data: {
+        title: data.title,
+        officeId: data.officeId,
+        serviceKind: data.serviceKind
+      },
     });
 
     return serviceType;
   } catch (error) {
-    console.error("Error creating question!", error);
-    throw new Error("Error creating question");
+    console.error("Error creating service!", error);
+    throw new Error("Error creating service");
   }
 }
 
