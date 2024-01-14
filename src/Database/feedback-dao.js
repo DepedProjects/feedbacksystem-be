@@ -56,7 +56,7 @@ async function getAllOffices() {
 async function getAllSubmitters() {
   try {
     const submitters = await prisma.submitters.findMany();
-    return offices;
+    return submitters;
   } catch (error) {
     console.error("Error retrieving submitters data!");
     throw new Error ("Error retrieving submitters data");
