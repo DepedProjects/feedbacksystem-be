@@ -1,10 +1,7 @@
 const feedbackDao = require("../Database/feedback-dao");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const { v4: uuidv4 } = require('uuid');
-//   {
-//    log: ["query", "info", "warn"],
-// }
+const { v4: uuidv4 } = require("uuid");
 
 function formatDateStrings(feedback) {
   if (feedback.created_at) {
@@ -36,8 +33,7 @@ async function fetchAllQuestions() {
 
     const questionWithCategorytitle = await Promise.all(
       questions.map(async (question) => {
-
-        const category =await prisma.categories.findUnique({
+        const category = await prisma.categories.findUnique({
           where: {
             id: question.categoryId,
           },
@@ -133,12 +129,11 @@ async function submitFeedback(feedbackData) {
 
     // Check for duplicate feedback using the unique identifier
     const serviceFeedbackIdentifier = JSON.stringify({
-      submitterId: feedbackData.submitter.id,
-      serviceDesc: feedbackData.serviceFeedback.serviceDesc || null,
+      submitterId: submitter.id,
+      serviceId: feedbackData.serviceFeedback.serviceId || null,
       serviceKindId: feedbackData.serviceFeedback.serviceKindId,
       officeId: feedbackData.serviceFeedback.officeId,
       overallComment: feedbackData.serviceFeedback.overallComment,
-      overallRating: feedbackData.serviceFeedback.overallRating,
     });
 
     const existingFeedback = await prisma.serviceFeedback.findFirst({
@@ -154,20 +149,80 @@ async function submitFeedback(feedbackData) {
       };
     }
 
+    // Calculate average rating from the provided ratings
+    const averageRating =
+      feedbackData.data.reduce(
+        (total, question) => total + question.rating,
+        0
+      ) / feedbackData.data.length;
+
     // Create serviceFeedback using the existing or new submitter
-    const serviceFeedback = await feedbackDao.createServiceFeedback({
-      ...feedbackData.serviceFeedback,
-      submitterId: submitter.id,
-      overallComment: feedbackData.serviceFeedback.overallComment,
-      overallRating: feedbackData.serviceFeedback.overallRating,
-      uniqueIdentifier: uuidv4(),
+    const serviceFeedback = await prisma.serviceFeedback.create({
+      data: {
+        submitter: {
+          connect: {
+            id: submitter.id,
+          },
+        },
+        serviceKind: {
+          connect: {
+            id: feedbackData.serviceFeedback.serviceKindId,
+          },
+        },
+        officeVisited: {
+          connect: {
+            id: feedbackData.serviceFeedback.officeId,
+          },
+        },
+        service: {
+          connect: {
+            id: feedbackData.serviceFeedback.serviceId,
+          },
+        },
+        submittername: submitter.name,
+        overallComment: feedbackData.serviceFeedback.overallComment,
+        uniqueIdentifier: uuidv4(),
+        averageRating: averageRating,
+        responsiveness: 0,
+        reliability: 0,
+        accessAndFacilities: 0,
+        communication: 0,
+        integrity: 0,
+        assurance: 0,
+        outcome: 0,
+      },
+    });
+
+    // Dynamically update serviceFeedback based on categoryId
+    // Dynamically update serviceFeedback based on categoryId
+    feedbackData.data.forEach((question) => {
+      const categoryId = question.categoryId;
+      const rating = question.rating;
+      const categoryField = getCategoryField(categoryId);
+
+      if (categoryField) {
+        console.log(`Updating ${categoryField} with rating ${rating}`);
+        serviceFeedback[categoryField] = rating;
+      } else {
+        console.error(`Invalid categoryId: ${categoryId}`);
+      }
+    });
+
+    // Await the dynamic update before proceeding
+    await prisma.serviceFeedback.update({
+      where: {
+        id: serviceFeedback.id,
+      },
+      data: serviceFeedback,
     });
 
     // Create feedback questions
     const feedbackQuestions = feedbackData.data.map(async (question) => {
-      return feedbackDao.createFeedbackQuestion({
-        ...question,
-        serviceFeedbackId: serviceFeedback.id,
+      return prisma.feedbackQuestion.create({
+        data: {
+          ...question,
+          serviceFeedbackId: serviceFeedback.id,
+        },
       });
     });
 
@@ -177,9 +232,12 @@ async function submitFeedback(feedbackData) {
       message: "Successfully Submitted your response! ",
       feedbackId: serviceFeedback.id,
       uniqueIdentifier: serviceFeedback.uniqueIdentifier,
+      submitter: {
+        id: submitter.id,
+        name: submitter.name,
+      },
       data: [
         {
-          id: submitter.id,
           serviceId: feedbackData.serviceFeedback.serviceId,
           otherService: feedbackData.serviceFeedback.otherService,
           serviceKindId: feedbackData.serviceFeedback.serviceKindId,
@@ -189,8 +247,7 @@ async function submitFeedback(feedbackData) {
       ],
       overallComment:
         serviceFeedback.overallComment || feedbackData.overallComment,
-      overallRating:
-        serviceFeedback.overallRating || feedbackData.overallRating,
+      averageRating: serviceFeedback.averageRating || averageRating,
       created_at: serviceFeedback.created_at,
       updated_at: serviceFeedback.updated_at,
     });
@@ -200,6 +257,21 @@ async function submitFeedback(feedbackData) {
     console.error("Error in submitFeedback:", error);
     throw new Error("Error in Process");
   }
+}
+
+// Helper function to get the category field based on categoryId
+function getCategoryField(categoryId) {
+  const categoryFieldMap = {
+    2: "responsiveness",
+    3: "reliability",
+    4: "accessAndFacilities",
+    5: "communication",
+    6: "integrity",
+    7: "assurance",
+    8: "outcome",
+    // Add more cases as needed for other categoryIds
+  };
+  return categoryFieldMap[categoryId];
 }
 
 //add category
@@ -324,8 +396,6 @@ async function dateRangeFilter(startDate, endDate) {
     throw new Error("Error in Process");
   }
 }
-
-
 
 module.exports = {
   fetchAllQuestions,

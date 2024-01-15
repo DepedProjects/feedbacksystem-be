@@ -22,23 +22,31 @@ model Submitters {
 }
 
 model ServiceFeedback {
-  id                Int                @unique @default(autoincrement())
-  submitter         Submitters         @relation(fields: [submitterId], references: [id])
-  submitterId       Int
-  service           Services?          @relation(fields: [serviceId], references: [id])
-  serviceId         Int
-  otherService      String?
-  serviceKind       ServiceKind        @relation(fields: [serviceKindId], references: [id])
-  serviceKindId     Int
-  officeVisited     Offices            @relation(fields: [officeId], references: [id])
-  officeId          Int
-  overallComment    String?
-  overallRating     Int
-  uniqueIdentifier  String
-  feedbackQuestions FeedbackQuestion[]
-  logs              Logs[]
-  created_at        DateTime           @default(now())
-  updated_at        DateTime           @updatedAt
+  id                  Int                @unique @default(autoincrement())
+  submitter           Submitters         @relation(fields: [submitterId], references: [id])
+  submitterId         Int
+  submittername       String
+  service             Services?          @relation(fields: [serviceId], references: [id])
+  serviceId           Int
+  otherService        String?
+  serviceKind         ServiceKind        @relation(fields: [serviceKindId], references: [id])
+  serviceKindId       Int
+  officeVisited       Offices            @relation(fields: [officeId], references: [id])
+  officeId            Int
+  overallComment      String?
+  averageRating       Int
+  responsiveness      Int
+  reliability         Int
+  accessAndFacilities Int
+  communication       Int
+  integrity           Int
+  assurance           Int
+  outcome             Int
+  uniqueIdentifier    String
+  feedbackQuestions   FeedbackQuestion[]
+  logs                Logs[]
+  created_at          DateTime           @default(now())
+  updated_at          DateTime           @updatedAt
 }
 
 model FeedbackQuestion {
@@ -58,7 +66,7 @@ model Services {
   id               Int               @unique @default(autoincrement())
   title            String
   office           Offices           @relation(fields: [relatedOfficeId], references: [id])
-  relatedOfficeId  Int 
+  relatedOfficeId  Int
   serviceKind      ServiceKind       @relation(fields: [serviceKindId], references: [id])
   serviceKindId    Int
   serviceFeedbacks ServiceFeedback[]
