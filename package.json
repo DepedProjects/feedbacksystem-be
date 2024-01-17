@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon app.js",
+    "dev": "node app.js",
     "automate": "nodemon automate.js",
     "backup": "node backup.js",
     "build": "npm run zip-files",
