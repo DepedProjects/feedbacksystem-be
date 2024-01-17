@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "nodemon app.js",
     "automate": "nodemon automate.js",
-    "backup": "node backup.js"
+    "backup": "node backup.js",
+    "build": "npm run zip-files"
   },
+  "zip-files": "zip -r your_archive_name.zip *",
   "author": "",
   "license": "ISC",
   "dependencies": {
