@@ -193,22 +193,39 @@ async function submitFeedback(feedbackData) {
       },
     });
 
-    // Dynamically update serviceFeedback based on categoryId
-    // Dynamically update serviceFeedback based on categoryId
+    // Update serviceFeedback fields based on categoryId
     feedbackData.data.forEach((question) => {
       const categoryId = question.categoryId;
       const rating = question.rating;
-      const categoryField = getCategoryField(categoryId);
 
-      if (categoryField) {
-        console.log(`Updating ${categoryField} with rating ${rating}`);
-        serviceFeedback[categoryField] = rating;
-      } else {
-        console.error(`Invalid categoryId: ${categoryId}`);
+      switch (categoryId) {
+        case 1:
+          serviceFeedback.responsiveness = rating;
+          break;
+        case 2:
+          serviceFeedback.reliability = rating;
+          break;
+        case 3:
+          serviceFeedback.accessAndFacilities = rating;
+          break;
+        case 4:
+          serviceFeedback.communication = rating;
+          break;
+        case 5:
+          serviceFeedback.integrity = rating;
+          break;
+        case 6:
+          serviceFeedback.assurance = rating;
+          break;
+        case 7:
+          serviceFeedback.outcome = rating;
+          break;
+        default:
+          console.error(`Invalid categoryId: ${categoryId}`);
       }
     });
 
-    // Await the dynamic update before proceeding
+    // Update serviceFeedback in the database
     await prisma.serviceFeedback.update({
       where: {
         id: serviceFeedback.id,
@@ -258,6 +275,7 @@ async function submitFeedback(feedbackData) {
     throw new Error("Error in Process");
   }
 }
+
 
 // Helper function to get the category field based on categoryId
 function getCategoryField(categoryId) {
