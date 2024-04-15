@@ -134,6 +134,7 @@ async function submitFeedback(feedbackData) {
       serviceKindId: feedbackData.serviceFeedback.serviceKindId,
       officeId: feedbackData.serviceFeedback.officeId,
       overallComment: feedbackData.serviceFeedback.overallComment,
+      consent: feedbackData.formResponse.consent,
     });
 
     const existingFeedback = await prisma.serviceFeedback.findFirst({
@@ -190,6 +191,7 @@ async function submitFeedback(feedbackData) {
         integrity: 0,
         assurance: 0,
         outcome: 0,
+        consent: feedbackData.formResponse.consent,
       },
     });
 
@@ -245,29 +247,24 @@ async function submitFeedback(feedbackData) {
 
     await Promise.all(feedbackQuestions);
 
-    const formattedResult = formatDateStrings({
-      message: "Successfully Submitted your response! ",
-      feedbackId: serviceFeedback.id,
-      uniqueIdentifier: serviceFeedback.uniqueIdentifier,
-      submitter: {
-        id: submitter.id,
-        name: submitter.name,
+    const formattedResult = {
+      formResponse: {
+        consent: feedbackData.formResponse.consent,
       },
-      data: [
-        {
-          serviceId: feedbackData.serviceFeedback.serviceId,
-          otherService: feedbackData.serviceFeedback.otherService,
-          serviceKindId: feedbackData.serviceFeedback.serviceKindId,
-          officeVisited: feedbackData.serviceFeedback.officeId,
-          form: feedbackData.data,
-        },
-      ],
-      overallComment:
-        serviceFeedback.overallComment || feedbackData.overallComment,
-      averageRating: serviceFeedback.averageRating || averageRating,
-      created_at: serviceFeedback.created_at,
-      updated_at: serviceFeedback.updated_at,
-    });
+      submitter: {
+        name: feedbackData.submitter.name,
+        email: feedbackData.submitter.email,
+        age: feedbackData.submitter.age,
+        sex: feedbackData.submitter.sex,
+      },
+      serviceFeedback: {
+        serviceKindId: feedbackData.serviceFeedback.serviceKindId,
+        officeId: feedbackData.serviceFeedback.officeId,
+        serviceId: feedbackData.serviceFeedback.serviceId,
+        overallComment: feedbackData.serviceFeedback.overallComment,
+      },
+      data: feedbackData.data,
+    };
 
     return formattedResult;
   } catch (error) {
@@ -275,8 +272,6 @@ async function submitFeedback(feedbackData) {
     throw new Error("Error in Process");
   }
 }
-
-
 // Helper function to get the category field based on categoryId
 function getCategoryField(categoryId) {
   const categoryFieldMap = {

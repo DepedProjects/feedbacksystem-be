@@ -29,10 +29,11 @@ model ServiceFeedback {
   service             Services?          @relation(fields: [serviceId], references: [id])
   serviceId           Int
   otherService        String?
-  serviceKind         ServiceKind        @relation(fields: [serviceKindId], references: [id])
+  serviceKind         ServiceKind?       @relation(fields: [serviceKindId], references: [id])
   serviceKindId       Int
   officeVisited       Offices            @relation(fields: [officeId], references: [id])
   officeId            Int
+  consent             String?
   overallComment      String?
   averageRating       Int
   responsiveness      Int
