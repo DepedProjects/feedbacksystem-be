@@ -134,7 +134,7 @@ async function submitFeedback(feedbackData) {
       serviceKindId: feedbackData.serviceFeedback.serviceKindId,
       officeId: feedbackData.serviceFeedback.officeId,
       overallComment: feedbackData.serviceFeedback.overallComment,
-      consent: feedbackData.formResponse.consent,
+      // consent: feedbackData.formResponse.consent || null,
     });
 
     const existingFeedback = await prisma.serviceFeedback.findFirst({
@@ -149,6 +149,36 @@ async function submitFeedback(feedbackData) {
         message: "Duplicate feedback. Cannot submit again.",
       };
     }
+
+    // Fetch officeName from the database based on officeId
+    const serviceRelated = await prisma.services.findUnique({
+      where: {
+        id: feedbackData.serviceFeedback.serviceId,
+      },
+      select: {
+        title: true,
+      },
+    });
+
+    // Fetch serviceKindDescription from the database based on serviceKindId
+    const serviceKindDescription = await prisma.serviceKind.findUnique({
+      where: {
+        id: feedbackData.serviceFeedback.serviceKindId,
+      },
+      select: {
+        description: true,
+      },
+    });
+
+    // Fetch officeName from the database based on officeId
+    const officeRelated = await prisma.offices.findUnique({
+      where: {
+        id: feedbackData.serviceFeedback.officeId,
+      },
+      select: {
+        title: true,
+      },
+    });
 
     // Calculate average rating from the provided ratings
     const averageRating =
@@ -191,7 +221,11 @@ async function submitFeedback(feedbackData) {
         integrity: 0,
         assurance: 0,
         outcome: 0,
-        consent: feedbackData.formResponse.consent,
+        // consent: feedbackData.formResponse.consent || null,
+        serviceDesc: serviceRelated.title,
+        officeName: officeRelated.title,
+        serviceKindDescription: serviceKindDescription.description, // Include serviceKindDescription
+        otherService: feedbackData.serviceFeedback.otherService,
       },
     });
 
@@ -200,30 +234,11 @@ async function submitFeedback(feedbackData) {
       const categoryId = question.categoryId;
       const rating = question.rating;
 
-      switch (categoryId) {
-        case 1:
-          serviceFeedback.responsiveness = rating;
-          break;
-        case 2:
-          serviceFeedback.reliability = rating;
-          break;
-        case 3:
-          serviceFeedback.accessAndFacilities = rating;
-          break;
-        case 4:
-          serviceFeedback.communication = rating;
-          break;
-        case 5:
-          serviceFeedback.integrity = rating;
-          break;
-        case 6:
-          serviceFeedback.assurance = rating;
-          break;
-        case 7:
-          serviceFeedback.outcome = rating;
-          break;
-        default:
-          console.error(`Invalid categoryId: ${categoryId}`);
+      const categoryField = getCategoryField(categoryId);
+      if (categoryField) {
+        serviceFeedback[categoryField] = rating;
+      } else {
+        console.error(`Invalid categoryId: ${categoryId}`);
       }
     });
 
@@ -248,9 +263,9 @@ async function submitFeedback(feedbackData) {
     await Promise.all(feedbackQuestions);
 
     const formattedResult = {
-      formResponse: {
-        consent: feedbackData.formResponse.consent,
-      },
+      // formResponse: {
+      //   consent: feedbackData.formResponse.consent,
+      // },
       submitter: {
         name: feedbackData.submitter.name,
         email: feedbackData.submitter.email,
@@ -259,8 +274,12 @@ async function submitFeedback(feedbackData) {
       },
       serviceFeedback: {
         serviceKindId: feedbackData.serviceFeedback.serviceKindId,
+        serviceKindDescription: serviceKindDescription.description, // Include serviceKindDescription
+        otherService: feedbackData.otherService,
         officeId: feedbackData.serviceFeedback.officeId,
+        officeName: officeRelated.title,
         serviceId: feedbackData.serviceFeedback.serviceId,
+        serviceDesc: serviceRelated.title,
         overallComment: feedbackData.serviceFeedback.overallComment,
       },
       data: feedbackData.data,
@@ -275,13 +294,13 @@ async function submitFeedback(feedbackData) {
 // Helper function to get the category field based on categoryId
 function getCategoryField(categoryId) {
   const categoryFieldMap = {
-    2: "responsiveness",
-    3: "reliability",
-    4: "accessAndFacilities",
-    5: "communication",
-    6: "integrity",
-    7: "assurance",
-    8: "outcome",
+    1: "responsiveness",
+    2: "reliability",
+    3: "accessAndFacilities",
+    4: "communication",
+    5: "integrity",
+    6: "assurance",
+    7: "outcome",
     // Add more cases as needed for other categoryIds
   };
   return categoryFieldMap[categoryId];

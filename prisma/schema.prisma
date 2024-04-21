@@ -22,32 +22,35 @@ model Submitters {
 }
 
 model ServiceFeedback {
-  id                  Int                @unique @default(autoincrement())
-  submitter           Submitters         @relation(fields: [submitterId], references: [id])
-  submitterId         Int
-  submittername       String
-  service             Services?          @relation(fields: [serviceId], references: [id])
-  serviceId           Int
-  otherService        String?
-  serviceKind         ServiceKind?       @relation(fields: [serviceKindId], references: [id])
-  serviceKindId       Int
-  officeVisited       Offices            @relation(fields: [officeId], references: [id])
-  officeId            Int
-  consent             String?
-  overallComment      String?
-  averageRating       Int
-  responsiveness      Int
-  reliability         Int
-  accessAndFacilities Int
-  communication       Int
-  integrity           Int
-  assurance           Int
-  outcome             Int
-  uniqueIdentifier    String
-  feedbackQuestions   FeedbackQuestion[]
-  logs                Logs[]
-  created_at          DateTime           @default(now())
-  updated_at          DateTime           @updatedAt
+  id                     Int                @unique @default(autoincrement())
+  submitter              Submitters         @relation(fields: [submitterId], references: [id])
+  submitterId            Int
+  submittername          String
+  service                Services?          @relation(fields: [serviceId], references: [id])
+  serviceDesc            String?
+  serviceId              Int
+  otherService           String?            @db.Text
+  serviceKind            ServiceKind?       @relation(fields: [serviceKindId], references: [id])
+  serviceKindId          Int
+  serviceKindDescription String?
+  officeVisited          Offices            @relation(fields: [officeId], references: [id])
+  officeId               Int
+  officeName             String?
+  consent                String?
+  overallComment         String?
+  averageRating          Int
+  responsiveness         Int
+  reliability            Int
+  accessAndFacilities    Int
+  communication          Int
+  integrity              Int
+  assurance              Int
+  outcome                Int
+  uniqueIdentifier       String
+  feedbackQuestions      FeedbackQuestion[]
+  logs                   Logs[]
+  created_at             DateTime           @default(now())
+  updated_at             DateTime           @updatedAt
 }
 
 model FeedbackQuestion {
@@ -66,9 +69,9 @@ model FeedbackQuestion {
 model Services {
   id               Int               @unique @default(autoincrement())
   title            String
-  office           Offices           @relation(fields: [relatedOfficeId], references: [id])
+  office           Offices?          @relation(fields: [relatedOfficeId], references: [id])
   relatedOfficeId  Int
-  serviceKind      ServiceKind       @relation(fields: [serviceKindId], references: [id])
+  serviceKind      ServiceKind?      @relation(fields: [serviceKindId], references: [id])
   serviceKindId    Int
   serviceFeedbacks ServiceFeedback[]
   created_at       DateTime          @default(now())
