@@ -66,7 +66,16 @@ async function fetchAllCategories() {
 async function fetchAllFeedbacks() {
   try {
     const fetchedFeedbacks = await feedbackDao.getAllFeedbacks();
-    return fetchedFeedbacks;
+
+    const formattedFeedbacks = fetchedFeedbacks.map((feedback) => {
+      return {
+        ...feedback,
+        created_at: new Date(feedback.created_at).toLocaleDateString(),
+        updated_at: new Date(feedback.updated_at).toLocaleDateString(),
+      };
+    });
+
+    return formattedFeedbacks;
   } catch (error) {
     console.error("Error in Process:", error);
     throw new Error("Error in Process");
@@ -134,7 +143,7 @@ async function submitFeedback(feedbackData) {
       serviceKindId: feedbackData.serviceFeedback.serviceKindId,
       officeId: feedbackData.serviceFeedback.officeId,
       overallComment: feedbackData.serviceFeedback.overallComment,
-      // consent: feedbackData.formResponse.consent || null,
+      consent: feedbackData.formResponse.consent,
     });
 
     const existingFeedback = await prisma.serviceFeedback.findFirst({
@@ -221,13 +230,15 @@ async function submitFeedback(feedbackData) {
         integrity: 0,
         assurance: 0,
         outcome: 0,
-        // consent: feedbackData.formResponse.consent || null,
+        consent: feedbackData.formResponse.consent,
         serviceDesc: serviceRelated.title,
         officeName: officeRelated.title,
         serviceKindDescription: serviceKindDescription.description, // Include serviceKindDescription
         otherService: feedbackData.serviceFeedback.otherService,
       },
     });
+
+    const createdDate = serviceFeedback.created_at.toLocaleDateString();
 
     // Update serviceFeedback fields based on categoryId
     feedbackData.data.forEach((question) => {
@@ -263,9 +274,9 @@ async function submitFeedback(feedbackData) {
     await Promise.all(feedbackQuestions);
 
     const formattedResult = {
-      // formResponse: {
-      //   consent: feedbackData.formResponse.consent,
-      // },
+      formResponse: {
+        consent: feedbackData.formResponse.consent,
+      },
       submitter: {
         name: feedbackData.submitter.name,
         email: feedbackData.submitter.email,
@@ -283,6 +294,7 @@ async function submitFeedback(feedbackData) {
         overallComment: feedbackData.serviceFeedback.overallComment,
       },
       data: feedbackData.data,
+      created_at: createdDate,
     };
 
     return formattedResult;
@@ -294,13 +306,13 @@ async function submitFeedback(feedbackData) {
 // Helper function to get the category field based on categoryId
 function getCategoryField(categoryId) {
   const categoryFieldMap = {
-    1: "responsiveness",
-    2: "reliability",
-    3: "accessAndFacilities",
-    4: "communication",
-    5: "integrity",
-    6: "assurance",
-    7: "outcome",
+    2: "responsiveness",
+    3: "reliability",
+    4: "accessAndFacilities",
+    5: "communication",
+    7: "integrity",
+    8: "assurance",
+    9: "outcome",
     // Add more cases as needed for other categoryIds
   };
   return categoryFieldMap[categoryId];
@@ -429,7 +441,22 @@ async function dateRangeFilter(startDate, endDate) {
   }
 }
 
+async function filteredServices(serviceKindId, relatedOfficeId) {
+  try {
+    const service = await feedbackDao.filterService(
+      serviceKindId,
+      relatedOfficeId
+    );
+
+    return service;
+  } catch (error) {
+    console.error("Error!", error);
+    throw new Error("Error in Process");
+  }
+}
+
 module.exports = {
+  filteredServices,
   fetchAllQuestions,
   fetchAllServices,
   fetchAllCategories,

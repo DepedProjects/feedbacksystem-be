@@ -1,7 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-
 //GET ALL
 async function getAllQuestions() {
   try {
@@ -59,7 +58,7 @@ async function getAllSubmitters() {
     return submitters;
   } catch (error) {
     console.error("Error retrieving submitters data!");
-    throw new Error ("Error retrieving submitters data");
+    throw new Error("Error retrieving submitters data");
   }
 }
 
@@ -69,7 +68,7 @@ async function getAllServiceKinds() {
     return kind;
   } catch (error) {
     console.error("Error retrieving service kind data!");
-    throw new Error ("Error retrieving service kind data");
+    throw new Error("Error retrieving service kind data");
   }
 }
 
@@ -80,8 +79,8 @@ async function createSubmitter(data) {
         name: data.name,
         email: data.email,
         age: data.age,
-        sex: data.sex
-      }
+        sex: data.sex,
+      },
     });
     return createdSubmitter;
   } catch (error) {
@@ -90,7 +89,21 @@ async function createSubmitter(data) {
   }
 }
 
+async function filterService(serviceKindId, relatedOfficeId) {
+  try {
+    const filteredService = await prisma.services.findMany({
+      where: {
+        serviceKindId: parseInt(serviceKindId),
+        relatedOfficeId: parseInt(relatedOfficeId),
+      },
+    });
 
+    return filteredService;
+  } catch (error) {
+    console.error("Error retrieving service!");
+    throw new Error("Error retrieving service");
+  }
+}
 
 //CREATE
 async function createServiceFeedback(data) {
@@ -187,8 +200,6 @@ async function createOffice(data) {
   }
 }
 
-
-
 //DELETE
 async function deleteAllRecords() {
   try {
@@ -200,8 +211,6 @@ async function deleteAllRecords() {
     console.error("Error erasing table data:", error);
   }
 }
-
-
 
 //OTHERS
 async function getSubmittersByDate(startDate, endDate) {
@@ -235,7 +244,7 @@ async function getSubmittersByDate(startDate, endDate) {
 async function countSubmittersByRating(questionId, rating, ratingCount) {
   try {
     const result = await prisma.feedbackQuestion.groupBy({
-      by: ['rating'],
+      by: ["rating"],
       _count: {
         rating: true,
       },
@@ -244,7 +253,7 @@ async function countSubmittersByRating(questionId, rating, ratingCount) {
         rating: rating ? parseInt(rating, 10) : undefined,
       },
       orderBy: {
-        rating: 'asc',
+        rating: "asc",
       },
     });
 
@@ -256,7 +265,7 @@ async function countSubmittersByRating(questionId, rating, ratingCount) {
         submitters: [],
       }));
     } else {
-      console.log('Fetching submitters for:', questionId, rating);
+      console.log("Fetching submitters for:", questionId, rating);
 
       const submittersResult = await prisma.serviceFeedback.findMany({
         where: {
@@ -270,20 +279,22 @@ async function countSubmittersByRating(questionId, rating, ratingCount) {
         },
       });
 
-      console.log('Fetched submitters:', submittersResult);
+      console.log("Fetched submitters:", submittersResult);
 
       const mappedResult = result.map((item) => {
         const matchingSubmitters = submittersResult.filter(
           (submitter) => submitter.feedbackQuestion.rating === item.rating
         );
 
-        const submittersDetails = matchingSubmitters.map((matchingSubmitter) => ({
-          submitterId: matchingSubmitter.submitter.id,
-          name: matchingSubmitter.submitter.name,
-          email: matchingSubmitter.submitter.email,
-          age: matchingSubmitter.submitter.age,
-          sex: matchingSubmitter.submitter.sex,
-        }));
+        const submittersDetails = matchingSubmitters.map(
+          (matchingSubmitter) => ({
+            submitterId: matchingSubmitter.submitter.id,
+            name: matchingSubmitter.submitter.name,
+            email: matchingSubmitter.submitter.email,
+            age: matchingSubmitter.submitter.age,
+            sex: matchingSubmitter.submitter.sex,
+          })
+        );
 
         return {
           questionId: parseInt(questionId, 10),
@@ -293,18 +304,18 @@ async function countSubmittersByRating(questionId, rating, ratingCount) {
         };
       });
 
-      console.log('Mapped result:', mappedResult);
+      console.log("Mapped result:", mappedResult);
 
       return mappedResult;
     }
   } catch (error) {
     console.error(error);
-    throw new Error('Error counting submitters by rating');
+    throw new Error("Error counting submitters by rating");
   }
 }
 
-
 module.exports = {
+  filterService,
   getAllQuestions,
   getAllServices,
   getAllCategories,

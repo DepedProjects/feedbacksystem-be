@@ -70,9 +70,9 @@ model Services {
   id               Int               @unique @default(autoincrement())
   title            String
   office           Offices?          @relation(fields: [relatedOfficeId], references: [id])
-  relatedOfficeId  Int
+  relatedOfficeId  Int?
   serviceKind      ServiceKind?      @relation(fields: [serviceKindId], references: [id])
-  serviceKindId    Int
+  serviceKindId    Int?
   serviceFeedbacks ServiceFeedback[]
   created_at       DateTime          @default(now())
   updated_at       DateTime          @updatedAt
@@ -108,8 +108,8 @@ model Categories {
 
 model Questions {
   id               Int                @unique @default(autoincrement())
-  title            String             @unique
-  description      String
+  title            String?            @unique
+  description      String?            @db.Text
   category         Categories         @relation(fields: [categoryId], references: [id])
   categoryId       Int
   FeedbackQuestion FeedbackQuestion[]

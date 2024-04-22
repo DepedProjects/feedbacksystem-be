@@ -2,6 +2,21 @@ const express = require("express");
 const feedBackRouter = express.Router();
 const feedBackService = require("../Services/feedback-service");
 
+feedBackRouter.get("/filteredServices", async (req, res) => {
+  try {
+    const { relatedOfficeId, serviceKindId } = req.query;
+
+    const results = await feedBackService.filteredServices(
+      relatedOfficeId,
+      serviceKindId
+    );
+    res.json(results);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 feedBackRouter.get("/questions", async (req, res) => {
   try {
     const questions = await feedBackService.fetchAllQuestions();
@@ -178,7 +193,5 @@ feedBackRouter.get("/submittersByDate", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
-
 
 module.exports = feedBackRouter;
