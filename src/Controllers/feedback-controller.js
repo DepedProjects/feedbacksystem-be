@@ -2,6 +2,22 @@ const express = require("express");
 const feedBackRouter = express.Router();
 const feedBackService = require("../Services/feedback-service");
 
+feedBackRouter.get("/filteredFeedbackbyDate", async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    const results = await feedBackService.dateRangeFilter(
+      startDate,
+      endDate
+    );
+    res.json(results);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 feedBackRouter.get("/filteredServices", async (req, res) => {
   try {
     const { relatedOfficeId, serviceKindId } = req.query;

@@ -6,13 +6,16 @@ const { v4: uuidv4 } = require("uuid");
 function formatDateStrings(feedback) {
   if (feedback.created_at) {
     const createdDate = new Date(feedback.created_at);
-    feedback.created_at = createdDate.toLocaleDateString(); // Adjust the formatting as needed
+    const formattedCreatedDate = createdDate.toISOString().split("T")[0]; // Get YYYY-MM-DD format
+    feedback.created_at = formattedCreatedDate;
   }
 
   if (feedback.updated_at) {
     const updatedDate = new Date(feedback.updated_at);
-    feedback.updated_at = updatedDate.toLocaleDateString(); // Adjust the formatting as needed
+    const formattedUpdatedDate = updatedDate.toISOString().split("T")[0]; // Get YYYY-MM-DD format
+    feedback.updated_at = formattedUpdatedDate;
   }
+
   return feedback;
 }
 
@@ -67,15 +70,7 @@ async function fetchAllFeedbacks() {
   try {
     const fetchedFeedbacks = await feedbackDao.getAllFeedbacks();
 
-    const formattedFeedbacks = fetchedFeedbacks.map((feedback) => {
-      return {
-        ...feedback,
-        created_at: new Date(feedback.created_at).toLocaleDateString(),
-        updated_at: new Date(feedback.updated_at).toLocaleDateString(),
-      };
-    });
-
-    return formattedFeedbacks;
+    return fetchedFeedbacks;
   } catch (error) {
     console.error("Error in Process:", error);
     throw new Error("Error in Process");
@@ -220,6 +215,7 @@ async function submitFeedback(feedbackData) {
           },
         },
         submittername: submitter.name,
+        age: submitter.age,
         overallComment: feedbackData.serviceFeedback.overallComment,
         uniqueIdentifier: uuidv4(),
         averageRating: averageRating,
@@ -429,7 +425,7 @@ async function addOffice(data) {
 
 async function dateRangeFilter(startDate, endDate) {
   try {
-    const filteredData = await feedbackDao.getSubmittersByDate(
+    const filteredData = await feedbackDao.dateRangeFiltered(
       startDate,
       endDate
     );
@@ -447,6 +443,18 @@ async function filteredServices(serviceKindId, relatedOfficeId) {
       serviceKindId,
       relatedOfficeId
     );
+
+    if (relatedOfficeId !== null || serviceKindId !== null) {
+      const otherConcern = {
+        id: 8,
+        title: "Other Concerns",
+        relatedOfficeId: null,
+        serviceKindId: null,
+        created_at: "2024-04-22T05:41:51.660Z",
+        updated_at: "2024-04-22T05:41:51.660Z",
+      };
+      service.push(otherConcern);
+    }
 
     return service;
   } catch (error) {

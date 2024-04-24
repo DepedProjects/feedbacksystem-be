@@ -26,6 +26,7 @@ model ServiceFeedback {
   submitter              Submitters         @relation(fields: [submitterId], references: [id])
   submitterId            Int
   submittername          String
+  age                    Int?
   service                Services?          @relation(fields: [serviceId], references: [id])
   serviceDesc            String?
   serviceId              Int

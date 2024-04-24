@@ -91,10 +91,19 @@ async function createSubmitter(data) {
 
 async function filterService(serviceKindId, relatedOfficeId) {
   try {
+    // Convert query parameters to integers if they are not null
+    const serviceKindIdInt = serviceKindId ? parseInt(serviceKindId) : null;
+    const relatedOfficeIdInt = relatedOfficeId
+      ? parseInt(relatedOfficeId)
+      : null;
+
     const filteredService = await prisma.services.findMany({
       where: {
-        serviceKindId: parseInt(serviceKindId),
-        relatedOfficeId: parseInt(relatedOfficeId),
+        // Only include filter conditions if they are not null
+        ...(serviceKindIdInt !== null && { serviceKindId: serviceKindIdInt }),
+        ...(relatedOfficeIdInt !== null && {
+          relatedOfficeId: relatedOfficeIdInt,
+        }),
       },
     });
 
@@ -102,6 +111,33 @@ async function filterService(serviceKindId, relatedOfficeId) {
   } catch (error) {
     console.error("Error retrieving service!");
     throw new Error("Error retrieving service");
+  }
+}
+
+async function dateRangeFiltered(startDate, endDate) {
+  try {
+    let whereCondition = {}; // Initialize an empty object for the where condition
+
+    // Check if startDate and endDate are provided
+    if (startDate && endDate) {
+      // If both startDate and endDate are provided, add date range condition
+      whereCondition = {
+        AND: [
+          { created_at: { gte: new Date(startDate) } },
+          { created_at: { lte: new Date(endDate + "T23:59:59.999Z") } }, // Include all entries for the endDate up until the end of the day
+        ],
+      };
+    }
+
+    // Fetch data using the where condition
+    const data = await prisma.serviceFeedback.findMany({
+      where: whereCondition, // Use the where condition
+    });
+
+    return data;
+  } catch (error) {
+    console.error("Error in dateRangeFiltered:", error);
+    throw error;
   }
 }
 
@@ -212,109 +248,8 @@ async function deleteAllRecords() {
   }
 }
 
-//OTHERS
-async function getSubmittersByDate(startDate, endDate) {
-  try {
-    if (startDate) {
-      startDate.setHours(0, 0, 0, 0);
-      if (!endDate) {
-        endDate = new Date(startDate);
-        endDate.setHours(23, 59, 99, 999);
-      }
-    }
-    const submitters = await prisma.submitters.findMany({
-      include: {
-        serviceFeedbacks: {
-          where: {
-            created_at: {
-              gte: startDate,
-              lte: endDate,
-            },
-          },
-        },
-      },
-    });
-
-    return submitters;
-  } catch (error) {
-    console.error("Error searching table data:", error);
-  }
-}
-
-async function countSubmittersByRating(questionId, rating, ratingCount) {
-  try {
-    const result = await prisma.feedbackQuestion.groupBy({
-      by: ["rating"],
-      _count: {
-        rating: true,
-      },
-      where: {
-        questionId: parseInt(questionId, 10),
-        rating: rating ? parseInt(rating, 10) : undefined,
-      },
-      orderBy: {
-        rating: "asc",
-      },
-    });
-
-    if (ratingCount) {
-      return result.map((item) => ({
-        questionId: parseInt(questionId, 10),
-        rating: item.rating,
-        ratingCount: item._count.rating,
-        submitters: [],
-      }));
-    } else {
-      console.log("Fetching submitters for:", questionId, rating);
-
-      const submittersResult = await prisma.serviceFeedback.findMany({
-        where: {
-          feedbackQuestion: {
-            questionId: parseInt(questionId, 10),
-            rating: rating ? parseInt(rating, 10) : undefined,
-          },
-        },
-        include: {
-          submitter: true,
-        },
-      });
-
-      console.log("Fetched submitters:", submittersResult);
-
-      const mappedResult = result.map((item) => {
-        const matchingSubmitters = submittersResult.filter(
-          (submitter) => submitter.feedbackQuestion.rating === item.rating
-        );
-
-        const submittersDetails = matchingSubmitters.map(
-          (matchingSubmitter) => ({
-            submitterId: matchingSubmitter.submitter.id,
-            name: matchingSubmitter.submitter.name,
-            email: matchingSubmitter.submitter.email,
-            age: matchingSubmitter.submitter.age,
-            sex: matchingSubmitter.submitter.sex,
-          })
-        );
-
-        return {
-          questionId: parseInt(questionId, 10),
-          rating: item.rating,
-          ratingCount: item._count.rating,
-          submitters: ratingCount ? [] : submittersDetails,
-        };
-      });
-
-      console.log("Mapped result:", mappedResult);
-
-      return mappedResult;
-    }
-  } catch (error) {
-    console.error(error);
-    throw new Error("Error counting submitters by rating");
-  }
-}
-
 module.exports = {
+  dateRangeFiltered,
   filterService,
   getAllQuestions,
   getAllServices,
@@ -333,6 +268,4 @@ module.exports = {
   createService,
   createOffice,
   deleteAllRecords,
-  getSubmittersByDate,
-  countSubmittersByRating,
 };
