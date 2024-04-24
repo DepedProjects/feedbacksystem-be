@@ -6,10 +6,7 @@ feedBackRouter.get("/filteredFeedbackbyDate", async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
 
-    const results = await feedBackService.dateRangeFilter(
-      startDate,
-      endDate
-    );
+    const results = await feedBackService.dateRangeFilter(startDate, endDate);
     res.json(results);
   } catch (error) {
     console.error(error);
@@ -17,15 +14,14 @@ feedBackRouter.get("/filteredFeedbackbyDate", async (req, res) => {
   }
 });
 
-
 feedBackRouter.get("/filteredServices", async (req, res) => {
   try {
     const { relatedOfficeId, serviceKindId } = req.query;
 
-    const results = await feedBackService.filteredServices(
-      relatedOfficeId,
-      serviceKindId
-    );
+    const office = parseInt(relatedOfficeId);
+    const serviceKind = parseInt(serviceKindId);
+
+    const results = await feedBackService.filteredServices(office, serviceKind);
     res.json(results);
   } catch (error) {
     console.error(error);

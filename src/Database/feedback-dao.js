@@ -91,25 +91,18 @@ async function createSubmitter(data) {
 
 async function filterService(serviceKindId, relatedOfficeId) {
   try {
-    // Convert query parameters to integers if they are not null
-    const serviceKindIdInt = serviceKindId ? parseInt(serviceKindId) : null;
-    const relatedOfficeIdInt = relatedOfficeId
-      ? parseInt(relatedOfficeId)
-      : null;
-
     const filteredService = await prisma.services.findMany({
       where: {
-        // Only include filter conditions if they are not null
-        ...(serviceKindIdInt !== null && { serviceKindId: serviceKindIdInt }),
-        ...(relatedOfficeIdInt !== null && {
-          relatedOfficeId: relatedOfficeIdInt,
-        }),
+        serviceKindId: parseInt(serviceKindId),
+        relatedOfficeId: parseInt(relatedOfficeId),
       },
     });
 
+    console.log(filteredService);
+
     return filteredService;
   } catch (error) {
-    console.error("Error retrieving service!");
+    console.error("Error retrieving service:", error);
     throw new Error("Error retrieving service");
   }
 }

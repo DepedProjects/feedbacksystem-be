@@ -440,25 +440,13 @@ async function dateRangeFilter(startDate, endDate) {
 async function filteredServices(serviceKindId, relatedOfficeId) {
   try {
     const service = await feedbackDao.filterService(
-      serviceKindId,
-      relatedOfficeId
+      parseInt(serviceKindId),
+      parseInt(relatedOfficeId)
     );
-
-    if (relatedOfficeId !== null || serviceKindId !== null) {
-      const otherConcern = {
-        id: 8,
-        title: "Other Concerns",
-        relatedOfficeId: null,
-        serviceKindId: null,
-        created_at: "2024-04-22T05:41:51.660Z",
-        updated_at: "2024-04-22T05:41:51.660Z",
-      };
-      service.push(otherConcern);
-    }
 
     return service;
   } catch (error) {
-    console.error("Error!", error);
+    console.error("Error:", error);
     throw new Error("Error in Process");
   }
 }
