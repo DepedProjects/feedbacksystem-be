@@ -22,8 +22,22 @@ function formatDateStrings(feedback) {
 //FETCH ALL DATA
 async function fetchAllServices() {
   try {
-    const fetchedServices = await feedbackDao.getAllServices();
-    return fetchedServices;
+    const services = await feedbackDao.getAllServices();
+
+    const completeServices = services.map(async (service) => {
+      const office = await feedbackDao.getOfficeById(service.relatedOfficeId);
+      const serviceKind = await feedbackDao.getserviceKindById(
+        service.serviceKindId
+      );
+
+      return {
+        ...service,
+        office: office ? office.title : null,
+        serviceKind: serviceKind ? serviceKind.description : null,
+      };
+    });
+
+    return completeServices;
   } catch (error) {
     console.error("Error in Process:", error);
     throw new Error("Error in Process");
@@ -437,16 +451,29 @@ async function dateRangeFilter(startDate, endDate) {
   }
 }
 
-async function filteredServices(serviceKindId, relatedOfficeId) {
+async function filteredServices(relatedOfficeId, serviceKindId) {
   try {
     const service = await feedbackDao.filterService(
-      parseInt(serviceKindId),
-      parseInt(relatedOfficeId)
+      relatedOfficeId,
+      serviceKindId
     );
+
+    // If either relatedOfficeId or serviceKindId is null, add the desired response entry
+    if (relatedOfficeId !== null || serviceKindId !== null) {
+      const otherConcern = {
+        id: 6,
+        title: "Other Services",
+        relatedOfficeId: null,
+        serviceKindId: null,
+        created_at: "2024-04-24 10:19:32.309Z",
+        updated_at: "2024-04-24 10:19:32.309Z",
+      };
+      service.push(otherConcern);
+    }
 
     return service;
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error!", error);
     throw new Error("Error in Process");
   }
 }

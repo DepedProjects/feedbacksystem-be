@@ -12,6 +12,34 @@ async function getAllQuestions() {
   }
 }
 
+async function getOfficeById(relatedOfficeId) {
+  try {
+    const services = await prisma.offices.findUnique({
+      where: {
+        relatedOfficeId: relatedOfficeId,
+      },
+    });
+    return services;
+  } catch (error) {
+    console.error("Error retrieving services data! ", error);
+    throw new Error("Error retrieving services data");
+  }
+}
+
+async function getserviceKindById(serviceKindId) {
+  try {
+    const services = await prisma.serviceKind.findUnique({
+      where: {
+        serviceKindId: serviceKindId,
+      },
+    });
+    return services;
+  } catch (error) {
+    console.error("Error retrieving services data! ", error);
+    throw new Error("Error retrieving services data");
+  }
+}
+
 async function getAllServices() {
   try {
     const services = await prisma.services.findMany();
@@ -89,20 +117,27 @@ async function createSubmitter(data) {
   }
 }
 
-async function filterService(serviceKindId, relatedOfficeId) {
+async function filterService(relatedOfficeId, serviceKindId) {
   try {
+    // Convert query parameters to integers if they are not null
+    const serviceKindIdInt = serviceKindId ? parseInt(serviceKindId) : null;
+    const relatedOfficeIdInt = relatedOfficeId
+      ? parseInt(relatedOfficeId)
+      : null;
+
     const filteredService = await prisma.services.findMany({
       where: {
-        serviceKindId: parseInt(serviceKindId),
-        relatedOfficeId: parseInt(relatedOfficeId),
+        // Only include filter conditions if they are not null
+        ...(serviceKindIdInt !== null && { serviceKindId: serviceKindIdInt }),
+        ...(relatedOfficeIdInt !== null && {
+          relatedOfficeId: relatedOfficeIdInt,
+        }),
       },
     });
 
-    console.log(filteredService);
-
     return filteredService;
   } catch (error) {
-    console.error("Error retrieving service:", error);
+    console.error("Error retrieving service!");
     throw new Error("Error retrieving service");
   }
 }
@@ -117,7 +152,7 @@ async function dateRangeFiltered(startDate, endDate) {
       whereCondition = {
         AND: [
           { created_at: { gte: new Date(startDate) } },
-          { created_at: { lte: new Date(endDate + "T23:59:59.999Z") } }, // Include all entries for the endDate up until the end of the day
+          { created_at: { lte: new Date(endDate) } }, // Include all entries for the endDate up until the end of the day
         ],
       };
     }
@@ -242,6 +277,8 @@ async function deleteAllRecords() {
 }
 
 module.exports = {
+  getOfficeById,
+  getserviceKindById,
   dateRangeFiltered,
   filterService,
   getAllQuestions,
