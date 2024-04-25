@@ -12,34 +12,6 @@ async function getAllQuestions() {
   }
 }
 
-async function getOfficeById(relatedOfficeId) {
-  try {
-    const services = await prisma.offices.findUnique({
-      where: {
-        relatedOfficeId: relatedOfficeId,
-      },
-    });
-    return services;
-  } catch (error) {
-    console.error("Error retrieving services data! ", error);
-    throw new Error("Error retrieving services data");
-  }
-}
-
-async function getserviceKindById(serviceKindId) {
-  try {
-    const services = await prisma.serviceKind.findUnique({
-      where: {
-        serviceKindId: serviceKindId,
-      },
-    });
-    return services;
-  } catch (error) {
-    console.error("Error retrieving services data! ", error);
-    throw new Error("Error retrieving services data");
-  }
-}
-
 async function getAllServices() {
   try {
     const services = await prisma.services.findMany();
@@ -68,6 +40,7 @@ async function getAllFeedbacks() {
     console.error("Error retrieving feedbacks data! ", error);
     throw new Error("Error retrieving feedbacks data");
   }
+  S;
 }
 
 async function getAllOffices() {
@@ -277,8 +250,6 @@ async function deleteAllRecords() {
 }
 
 module.exports = {
-  getOfficeById,
-  getserviceKindById,
   dateRangeFiltered,
   filterService,
   getAllQuestions,

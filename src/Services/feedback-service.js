@@ -23,18 +23,28 @@ function formatDateStrings(feedback) {
 async function fetchAllServices() {
   try {
     const services = await feedbackDao.getAllServices();
+    const offices = await feedbackDao.getAllOffices();
+    const sKinds = await feedbackDao.getAllServiceKinds();
 
-    const completeServices = services.map(async (service) => {
-      const office = await feedbackDao.getOfficeById(service.relatedOfficeId);
-      const serviceKind = await feedbackDao.getserviceKindById(
-        service.serviceKindId
+    const completeServices = services.map((service) => {
+      const office = offices.find((ofc) => ofc.id === service.relatedOfficeId);
+      const serviceKind = sKinds.find(
+        (srvk) => srvk.id === service.serviceKindId
       );
 
-      return {
-        ...service,
-        office: office ? office.title : null,
-        serviceKind: serviceKind ? serviceKind.description : null,
-      };
+      if (
+        office !== undefined ||
+        (office !== null && serviceKind !== undefined) ||
+        office !== null
+      ) {
+        return {
+          ...service,
+          office: office ? office.title : null,
+          serviceKind: serviceKind ? serviceKind.description : null,
+        };
+      }
+
+      console.log(office);
     });
 
     return completeServices;
