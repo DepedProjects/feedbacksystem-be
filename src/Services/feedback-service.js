@@ -447,6 +447,16 @@ async function addOffice(data) {
   }
 }
 
+async function updateOfficeName(id, data) {
+  try {
+    const updatedOffice = await feedbackDao.updateOffice(id, data);
+    return updatedOffice;
+  } catch (error) {
+    console.error("Error!", error);
+    throw new Error("Error in Process");
+  }
+}
+
 async function dateRangeFilter(startDate, endDate) {
   try {
     const filteredData = await feedbackDao.dateRangeFiltered(
@@ -503,6 +513,7 @@ module.exports = {
   addServiceKind,
   addServiceType,
   addOffice,
+  updateOfficeName,
   formatDateStrings,
   dateRangeFilter,
 };

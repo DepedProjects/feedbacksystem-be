@@ -237,6 +237,22 @@ async function createOffice(data) {
   }
 }
 
+//UPDATE
+async function updateOffice(id, data) {
+  try {
+    const updatedLevel = await prisma.offices.update({
+      where: {
+        id: id,
+      },
+      data: data,
+    });
+    return updatedLevel;
+  } catch (error) {
+    console.error("Error updating Office", error);
+    throw new Error(error);
+  }
+}
+
 //DELETE
 async function deleteAllRecords() {
   try {
@@ -268,5 +284,6 @@ module.exports = {
   createServiceKind,
   createService,
   createOffice,
+  updateOffice,
   deleteAllRecords,
 };

@@ -184,6 +184,18 @@ feedBackRouter.post("/createOffice", async (req, res) => {
   }
 });
 
+feedBackRouter.put("/updateOffice/:id", async (req, res) => {
+  try {
+    const officeId = parseInt(req.params.id, 10);
+
+    const updatedOfficeData = await feedBackService.updateOfficeName(officeId, req.body);
+    res.json(updatedOfficeData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 feedBackRouter.get("/submittersByDate", async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
@@ -205,5 +217,7 @@ feedBackRouter.get("/submittersByDate", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
 
 module.exports = feedBackRouter;
