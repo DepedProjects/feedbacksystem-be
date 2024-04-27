@@ -199,6 +199,22 @@ feedBackRouter.put("/updateOffice/:id", async (req, res) => {
   }
 });
 
+
+feedBackRouter.put("/updateService/:id", async (req, res) => {
+  try {
+    const serviceId = parseInt(req.params.id, 10);
+
+    const updatedServiceData = await feedBackService.updateServiceData(
+      serviceId,
+      req.body
+    );
+    res.json(updatedServiceData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 feedBackRouter.get("/submittersByDate", async (req, res) => {
   try {
     const { startDate, endDate } = req.query;

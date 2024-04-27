@@ -457,6 +457,19 @@ async function updateOfficeName(id, data) {
   }
 }
 
+async function updateServiceData(id, data) {
+  try {
+    const updatedService = await feedbackDao.updateService(id, data);
+    return {
+      message: "Data Updated Successfully",
+      Data: updatedService,
+    };
+  } catch (error) {
+    console.error("Error!", error);
+    throw new Error("Error in Process");
+  }
+}
+
 async function deleteOffice(id) {
   try {
     const delOffice = await feedbackDao.deleteOffice(id);
@@ -527,6 +540,7 @@ module.exports = {
   addServiceType,
   addOffice,
   updateOfficeName,
+  updateServiceData,
   formatDateStrings,
   dateRangeFilter,
   deleteOffice,

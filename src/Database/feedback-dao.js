@@ -253,6 +253,21 @@ async function updateOffice(id, data) {
   }
 }
 
+async function updateService(id, data) {
+  try {
+    const updatedService = await prisma.services.update({
+      where: {
+        id: id,
+      },
+      data: data,
+    });
+    return updatedService;
+  } catch (error) {
+    console.error("Error updating Office", error);
+    throw new Error(error);
+  }
+}
+
 //DELETE
 async function deleteAllRecords() {
   try {
@@ -299,6 +314,7 @@ module.exports = {
   createService,
   createOffice,
   updateOffice,
+  updateService,
   deleteAllRecords,
   deleteOffice,
 };
