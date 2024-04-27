@@ -188,7 +188,10 @@ feedBackRouter.put("/updateOffice/:id", async (req, res) => {
   try {
     const officeId = parseInt(req.params.id, 10);
 
-    const updatedOfficeData = await feedBackService.updateOfficeName(officeId, req.body);
+    const updatedOfficeData = await feedBackService.updateOfficeName(
+      officeId,
+      req.body
+    );
     res.json(updatedOfficeData);
   } catch (error) {
     console.error(error);
@@ -218,6 +221,17 @@ feedBackRouter.get("/submittersByDate", async (req, res) => {
   }
 });
 
+feedBackRouter.delete("/deleteOffice/:id", async (req, res) => {
+  try {
+    const offId = parseInt(req.params.id, 10);
 
+    const deletedOfficeData = await feedBackService.deleteOffice(offId);
+
+    res.json({ deletedOfficeData });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 module.exports = feedBackRouter;

@@ -265,6 +265,20 @@ async function deleteAllRecords() {
   }
 }
 
+async function deleteOffice(id) {
+  try {
+    const deletedOffice = await prisma.offices.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    return deletedOffice;
+  } catch (error) {
+    console.error("Error erasing table data:", error);
+  }
+}
+
 module.exports = {
   dateRangeFiltered,
   filterService,
@@ -286,4 +300,5 @@ module.exports = {
   createOffice,
   updateOffice,
   deleteAllRecords,
+  deleteOffice,
 };

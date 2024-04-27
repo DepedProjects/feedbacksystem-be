@@ -457,6 +457,19 @@ async function updateOfficeName(id, data) {
   }
 }
 
+async function deleteOffice(id) {
+  try {
+    const delOffice = await feedbackDao.deleteOffice(id);
+    return {
+      message: "Office Deleted Successfully",
+      data: delOffice,
+    };
+  } catch (error) {
+    console.error("Error!", error);
+    throw new Error("Error in Process");
+  }
+}
+
 async function dateRangeFilter(startDate, endDate) {
   try {
     const filteredData = await feedbackDao.dateRangeFiltered(
@@ -481,12 +494,12 @@ async function filteredServices(relatedOfficeId, serviceKindId) {
     // If either relatedOfficeId or serviceKindId is null, add the desired response entry
     if (relatedOfficeId !== null || serviceKindId !== null) {
       const otherConcern = {
-        id: 6,
+        id: 4,
         title: "Other Services",
         relatedOfficeId: null,
         serviceKindId: null,
-        created_at: "2024-04-24 10:19:32.309Z",
-        updated_at: "2024-04-24 10:19:32.309Z",
+        created_at: "2024-04-27 07:33:11.950Z",
+        updated_at: "2024-04-27 07:33:11.950Z",
       };
       service.push(otherConcern);
     }
@@ -516,4 +529,5 @@ module.exports = {
   updateOfficeName,
   formatDateStrings,
   dateRangeFilter,
+  deleteOffice,
 };
