@@ -11,6 +11,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model users {
+  uid        Int      @id @default(autoincrement())
+  username   String   @unique
+  password   String
+  role       String
+  officeName String?
+  officeId   Int?
+  office     Offices? @relation(fields: [officeId], references: [id])
+}
+
 model Submitters {
   id               Int               @unique @default(autoincrement())
   name             String?
@@ -125,4 +135,5 @@ model Offices {
   created_at      DateTime          @default(now())
   updated_at      DateTime          @updatedAt
   Services        Services[]
+  users           users[]
 }

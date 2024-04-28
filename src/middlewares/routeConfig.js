@@ -1,5 +1,6 @@
 const express = require("express");
 const feedbackRouter = require("../Controllers/feedback-controller");
+const usersRouter = require("../UserAuth/user-controller");
 
 
 const Routes = (app, prisma) => {
@@ -7,6 +8,7 @@ const Routes = (app, prisma) => {
     const router = express.Router();
 
     router.use("/feedback", feedbackRouter);
+    router.use("/user", usersRouter);
     
     app.use("/", router);
 
