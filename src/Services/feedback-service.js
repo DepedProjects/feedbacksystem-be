@@ -483,11 +483,12 @@ async function deleteOffice(id) {
   }
 }
 
-async function dateRangeFilter(startDate, endDate) {
+async function dateRangeFilter(startDate, endDate, officeId) {
   try {
     const filteredData = await feedbackDao.dateRangeFiltered(
       startDate,
-      endDate
+      endDate,
+      officeId
     );
 
     return filteredData;

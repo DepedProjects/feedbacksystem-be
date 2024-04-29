@@ -1,15 +1,22 @@
 const userDao = require("../UserAuth/user-dao");
 const bcrypt = require("bcryptjs");
-const { BadRequestError } = require("../middlewares/errors");
 // const jwt = require("jsonwebtoken");
 // require("dotenv").config();
 
 async function authenticateUser(username, password) {
   try {
     const user = await userDao.getUserByUsername(username);
+    if (!user) {
+      const error = new Error("Username not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
     const validPassword = await bcrypt.compare(password, user.password);
-    if (!user || !validPassword) {
-      throw new BadRequestError("Invalid Credentials");
+    if (!validPassword) {
+      const error = new Error("Invalid password");
+      error.statusCode = 401;
+      throw error;
     }
 
     // const accessToken = jwt.sign(

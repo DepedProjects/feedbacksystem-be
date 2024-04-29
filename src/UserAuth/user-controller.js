@@ -6,7 +6,7 @@ const userService = require("../UserAuth/user-service");
 //   res.render("login", { captcha: req.session.captcha });
 // });
 
-usersRouter.post("/login", async (req, res, next) => {
+usersRouter.post("/login", async (req, res) => {
   try {
     // const { username, password, captcha } = req.body;
 
@@ -18,8 +18,6 @@ usersRouter.post("/login", async (req, res, next) => {
     // Log the user in (you may use a session or JWT)
 
     const body = req.body;
-
-    console.log(body);
 
     // Validate input
     if (!body.username || !body.password) {
@@ -59,8 +57,11 @@ usersRouter.post("/login", async (req, res, next) => {
         message: "Login successful",
         data: user,
       });
-  } catch(error) {
-    next(error);
+  } catch (error) {
+    const statusCode = error.statusCode || 500;
+    const errorMessage = error.message || "Internal server error";
+
+    res.status(statusCode).json({ error: errorMessage });
   }
 });
 

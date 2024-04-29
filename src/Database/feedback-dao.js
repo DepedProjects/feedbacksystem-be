@@ -115,19 +115,31 @@ async function filterService(relatedOfficeId, serviceKindId) {
   }
 }
 
-async function dateRangeFiltered(startDate, endDate) {
+async function dateRangeFiltered(startDate, endDate, officeId) {
   try {
     let whereCondition = {}; // Initialize an empty object for the where condition
 
-    // Check if startDate and endDate are provided
+    // Check if both startDate and endDate are provided
     if (startDate && endDate) {
       // If both startDate and endDate are provided, add date range condition
       whereCondition = {
         AND: [
           { created_at: { gte: new Date(startDate) } },
-          { created_at: { lte: new Date(endDate) } }, // Include all entries for the endDate up until the end of the day
+          { created_at: { lte: new Date(endDate) } },
         ],
       };
+    }
+
+    // Check if officeId is provided
+    if (officeId) {
+      // If officeId is provided, add officeId condition
+      if (whereCondition.AND) {
+        // If other conditions exist, add officeId condition as part of the AND condition
+        whereCondition.AND.push({ officeId: officeId });
+      } else {
+        // If no other conditions exist, initialize the whereCondition with only the officeId condition
+        whereCondition = { officeId: officeId };
+      }
     }
 
     // Fetch data using the where condition

@@ -7,9 +7,10 @@ class NotFoundError extends Error {
 }
 
 class BadRequestError extends Error {
-  constructor(message) {
-    super(message);
+  constructor(errorObj) {
+    super(errorObj[Object.keys(errorObj)[0]]);
     this.name = "BadRequestError";
+    this.errorObj = errorObj;
   }
 }
 
@@ -32,6 +33,7 @@ class AuthenticationError extends Error {
 function errorHandler(err, req, res, next) {
   // Handle specific error types
   if (err instanceof NotFoundError) {
+    console.log(err);
     return res.status(404).json({
       success: false,
       error: err.name,
@@ -40,10 +42,10 @@ function errorHandler(err, req, res, next) {
   }
 
   if (err instanceof BadRequestError) {
-    return res.status(400).json({
+    return res.status(401).json({
       success: false,
       error: err.name,
-      message: err.message,
+      message: err.errorObj,
     });
   }
 

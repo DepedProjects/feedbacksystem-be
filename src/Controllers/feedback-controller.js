@@ -4,9 +4,18 @@ const feedBackService = require("../Services/feedback-service");
 
 feedBackRouter.get("/filteredFeedbackbyDate", async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
+    let { startDate, endDate, officeId } = req.query;
 
-    const results = await feedBackService.dateRangeFilter(startDate, endDate);
+    // Parse officeId to integer if it exists
+    if (officeId) {
+      officeId = parseInt(officeId);
+    }
+
+    const results = await feedBackService.dateRangeFilter(
+      startDate,
+      endDate,
+      officeId
+    );
     res.json(results);
   } catch (error) {
     console.error(error);
@@ -198,7 +207,6 @@ feedBackRouter.put("/updateOffice/:id", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
 
 feedBackRouter.put("/updateService/:id", async (req, res) => {
   try {
