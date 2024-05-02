@@ -1,4 +1,5 @@
 const express = require("express");
+const ExcelJS = require("exceljs");
 const feedBackRouter = express.Router();
 const feedBackService = require("../Services/feedback-service");
 
@@ -17,6 +18,111 @@ feedBackRouter.get("/filteredFeedbackbyDate", async (req, res) => {
       officeId
     );
     res.json(results);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
+  try {
+    let { startDate, endDate, officeId } = req.query;
+
+    // Parse officeId to integer if it exists
+    if (officeId) {
+      officeId = parseInt(officeId);
+    }
+
+    const data = await feedBackService.dateRangeFilter(
+      startDate,
+      endDate,
+      officeId
+    );
+
+    // Generate a dynamic filename based on the current timestamp
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    filename = `CSR_Report_${year}${month}${day}.xlsx`;
+
+    // Define the headers to be included in the Excel file
+    const headers = [
+      "consent",
+      "submittername",
+      "age",
+      "serviceDesc",
+      "otherService",
+      "serviceKindDescription",
+      "officeName",
+      "responsiveness",
+      "reliability",
+      "accessAndFacilities",
+      "communication",
+      "integrity",
+      "assurance",
+      "outcome",
+      "averageRating",
+      "overallComment",
+    ];
+
+    // Map headers to desired column names
+    const headerMappings = {
+      consent: "Consent",
+      submittername: "Submitter",
+      age: "Age",
+      serviceDesc: "Service",
+      otherService: "Other Service",
+      serviceKindDescription: "Service Type",
+      officeName: "Office",
+      responsiveness: "Responsiveness",
+      reliability: "Reliability",
+      accessAndFacilities: "Access and Facilities",
+      communication: "Communication",
+      integrity: "Integrity",
+      assurance: "Assurance",
+      outcome: "Outcome",
+      averageRating: "Overall Satisfaction",
+      overallComment: "Comment / Suggestions",
+    };
+
+    // Create a new Excel workbook
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Customer Satisfaction Report");
+
+    // Add headers to worksheet
+    const headerRow = headers.map((header) => headerMappings[header]);
+    worksheet.addRow(headerRow);
+
+    // Set header styles (width and color)
+    const columns = worksheet.columns;
+    columns.forEach((column, index) => {
+      column.width = 20; // Set the width for each column (in characters)
+      column.eachCell({ includeEmpty: true }, (cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFFF00" }, // Set the fill color (yellow)
+        };
+      });
+    });
+
+    // Add data rows
+    data.forEach((row) => {
+      const rowData = headers.map((header) => row[header]);
+      worksheet.addRow(rowData);
+    });
+
+    // Generate Excel file
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    // Send the Excel file in the response with the correct MIME type and dynamic filename
+    res.set({
+      "Content-Type":
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "Content-Disposition": `attachment; filename="${filename}"`,
+    });
+    res.send(buffer);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
