@@ -97,7 +97,7 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
     // Set header styles (width and color)
     const columns = worksheet.columns;
     columns.forEach((column, index) => {
-      column.width = 20; // Set the width for each column (in characters)
+      column.width = 50; // Set the width for each column (in characters)
       column.eachCell({ includeEmpty: true }, (cell) => {
         cell.fill = {
           type: "pattern",
