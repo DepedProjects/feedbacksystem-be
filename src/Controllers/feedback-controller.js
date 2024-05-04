@@ -44,7 +44,7 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Months are zero-based
     const day = String(currentDate.getDate()).padStart(2, "0");
-    filename = `CSR_Report_${year}${month}${day}.xlsx`;
+    filename = `CSM_Report_${year}${month}${day}.xlsx`;
 
     // Define the headers to be included in the Excel file
     const headers = [
