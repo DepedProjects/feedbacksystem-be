@@ -1,4 +1,7 @@
 const express = require("express");
+const dayjs = require("dayjs");
+const customParseFormat = require("dayjs/plugin/customParseFormat");
+dayjs.extend(customParseFormat);
 const ExcelJS = require("exceljs");
 const feedBackRouter = express.Router();
 const feedBackService = require("../Services/feedback-service");
@@ -64,26 +67,31 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
       "outcome",
       "averageRating",
       "overallComment",
+      "created_at",
     ];
 
     // Map headers to desired column names
     const headerMappings = {
-      consent: "Consent",
-      submittername: "Submitter",
-      age: "Age",
-      serviceDesc: "Service",
-      otherService: "Other Service",
-      serviceKindDescription: "Service Type",
-      officeName: "Office",
-      responsiveness: "Responsiveness",
-      reliability: "Reliability",
-      accessAndFacilities: "Access and Facilities",
-      communication: "Communication",
-      integrity: "Integrity",
-      assurance: "Assurance",
-      outcome: "Outcome",
-      averageRating: "Overall Satisfaction",
-      overallComment: "Comment / Suggestions",
+      consent: { name: "Consent", width: 100 },
+      submittername: { name: "Submitter", width: 200 },
+      age: { name: "Age", width: 80 },
+      serviceDesc: { name: "Service", width: 150 },
+      otherService: { name: "Other Service", width: 150 },
+      serviceKindDescription: { name: "Service Type", width: 150 },
+      officeName: { name: "Office", width: 150 },
+      responsiveness: { name: "Responsiveness", width: 120 },
+      reliability: { name: "Reliability", width: 120 },
+      accessAndFacilities: { name: "Access and Facilities", width: 180 },
+      communication: { name: "Communication", width: 120 },
+      integrity: { name: "Integrity", width: 100 },
+      assurance: { name: "Assurance", width: 100 },
+      outcome: { name: "Outcome", width: 100 },
+      averageRating: {
+        name: "Overall Satisfaction / Average Rating",
+        width: 200,
+      },
+      overallComment: { name: "Comment / Suggestions", width: 200 },
+      created_at: { name: "Submitted at", width: 180 },
     };
 
     // Create a new Excel workbook
@@ -91,7 +99,7 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
     const worksheet = workbook.addWorksheet("Customer Satisfaction Report");
 
     // Add headers to worksheet
-    const headerRow = headers.map((header) => headerMappings[header]);
+    const headerRow = headers.map((header) => headerMappings[header].name);
     worksheet.addRow(headerRow);
 
     // Set header styles (width and color)
@@ -102,13 +110,14 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
         cell.fill = {
           type: "pattern",
           pattern: "solid",
-          fgColor: { argb: "FFFF00" }, // Set the fill color (yellow)
+          fgColor: { argb: "02f3f7" }, // Set the fill color (yellow)
         };
       });
     });
 
     // Add data rows
     data.forEach((row) => {
+      row.created_at = dayjs(row.created_at).format("MM-DD-YYYY hh:mm A");
       const rowData = headers.map((header) => row[header]);
       worksheet.addRow(rowData);
     });

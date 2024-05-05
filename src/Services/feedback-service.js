@@ -314,6 +314,7 @@ async function submitFeedback(feedbackData) {
         overallComment: feedbackData.serviceFeedback.overallComment,
       },
       data: feedbackData.data,
+      averageRating: averageRating,
       created_at: createdDate,
     };
 
