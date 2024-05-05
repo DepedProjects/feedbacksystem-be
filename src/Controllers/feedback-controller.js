@@ -72,54 +72,58 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
 
     // Map headers to desired column names
     const headerMappings = {
-      consent: { name: "Consent", width: 100 },
-      submittername: { name: "Submitter", width: 200 },
-      age: { name: "Age", width: 80 },
-      serviceDesc: { name: "Service", width: 150 },
-      otherService: { name: "Other Service", width: 150 },
-      serviceKindDescription: { name: "Service Type", width: 150 },
-      officeName: { name: "Office", width: 150 },
-      responsiveness: { name: "Responsiveness", width: 120 },
-      reliability: { name: "Reliability", width: 120 },
-      accessAndFacilities: { name: "Access and Facilities", width: 180 },
-      communication: { name: "Communication", width: 120 },
-      integrity: { name: "Integrity", width: 100 },
-      assurance: { name: "Assurance", width: 100 },
-      outcome: { name: "Outcome", width: 100 },
+      consent: { name: "Consent", width: 20 },
+      submittername: { name: "Submitter", width: 50 },
+      age: { name: "Age", width: 20 },
+      serviceDesc: { name: "Service", width: 100 },
+      otherService: { name: "Other Service", width: 100 },
+      serviceKindDescription: { name: "Service Type", width: 20 },
+      officeName: { name: "Office", width: 100 },
+      responsiveness: { name: "Responsiveness", width: 25 },
+      reliability: { name: "Reliability", width: 25 },
+      accessAndFacilities: { name: "Access and Facilities", width: 25 },
+      communication: { name: "Communication", width: 25 },
+      integrity: { name: "Integrity", width: 25 },
+      assurance: { name: "Assurance", width: 25 },
+      outcome: { name: "Outcome", width: 25 },
       averageRating: {
         name: "Overall Satisfaction / Average Rating",
-        width: 200,
+        width: 40,
       },
-      overallComment: { name: "Comment / Suggestions", width: 200 },
-      created_at: { name: "Submitted at", width: 180 },
+      overallComment: { name: "Comment / Suggestions", width: 100 },
+      created_at: { name: "Submitted at", width: 25 },
     };
 
     // Create a new Excel workbook
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Customer Satisfaction Report");
 
-    // Add headers to worksheet
-    const headerRow = headers.map((header) => headerMappings[header].name);
-    worksheet.addRow(headerRow);
-
-    // Set header styles (width and color)
-    const columns = worksheet.columns;
-    columns.forEach((column, index) => {
-      column.width = 50; // Set the width for each column (in characters)
-      column.eachCell({ includeEmpty: true }, (cell) => {
-        cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "02f3f7" }, // Set the fill color (yellow)
-        };
-      });
+    // Add headers to worksheet and set column widths
+    headers.forEach((header, index) => {
+      const { name, width } = headerMappings[header];
+      worksheet.getColumn(index + 1).width = width; // Set column width
+      worksheet.getCell(1, index + 1).value = name; // Set header cell value
     });
 
-    // Add data rows
+    // Set header styles (fill color)
+    const headerRow = worksheet.getRow(1);
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "02f3f7" }, // Set the fill color (blue shade)
+      };
+      cell.font = { bold: true }; // Make the font bold
+    });
+
+    // Add data rows and set horizontal alignment
     data.forEach((row) => {
       row.created_at = dayjs(row.created_at).format("MM-DD-YYYY hh:mm A");
       const rowData = headers.map((header) => row[header]);
-      worksheet.addRow(rowData);
+      const dataRow = worksheet.addRow(rowData);
+      dataRow.eachCell((cell) => {
+        cell.alignment = { horizontal: "left" };
+      });
     });
 
     // Generate Excel file

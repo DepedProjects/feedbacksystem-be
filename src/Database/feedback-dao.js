@@ -125,7 +125,7 @@ async function dateRangeFiltered(startDate, endDate, officeId) {
       whereCondition = {
         AND: [
           { created_at: { gte: new Date(startDate) } },
-          { created_at: { lte: new Date(endDate) } },
+          { created_at: { lte: new Date(endDate + "T23:59:59.999Z") } },
         ],
       };
     }
