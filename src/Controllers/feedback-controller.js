@@ -114,6 +114,12 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
         fgColor: { argb: "02f3f7" }, // Set the fill color (blue shade)
       };
       cell.font = { bold: true }; // Make the font bold
+      cell.border = {
+        top: { style: "thick" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+        left: { style: "thin" },
+      };
     });
 
     // Add data rows and set horizontal alignment
