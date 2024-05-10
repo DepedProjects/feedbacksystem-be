@@ -155,6 +155,31 @@ async function dateRangeFiltered(startDate, endDate, officeId) {
 }
 
 //CREATE
+
+async function addAge(data) {
+  try {
+    const subAge = await prisma.age.create({
+      data,
+    });
+    return subAge;
+  } catch (error) {
+    console.error("Error creating age bracket!", error);
+    throw new Error("Error creating age bracket");
+  }
+}
+
+async function addClientType(data) {
+  try {
+    const type = await prisma.clientType.create({
+      data,
+    });
+    return type;
+  } catch (error) {
+    console.error("Error creating client type!", error);
+    throw new Error("Error creating client type!");
+  }
+}
+
 async function createServiceFeedback(data) {
   try {
     const serviceFeedback = await prisma.serviceFeedback.create({
@@ -317,6 +342,8 @@ module.exports = {
   getAllOffices,
   getAllSubmitters,
   getAllServiceKinds,
+  addAge,
+  addClientType,
   createFeedbackQuestion,
   createServiceFeedback,
   createSubmitter,

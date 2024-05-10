@@ -25,22 +25,31 @@ model Submitters {
   id               Int               @unique @default(autoincrement())
   name             String?
   email            String
-  age              Int
+  age              Age?              @relation(fields: [ageId], references: [id])
+  ageId            Int?
+  clientType       ClientType?       @relation(fields: [clientTypeId], references: [id])
+  clientTypeId     Int?
   sex              String
   serviceFeedbacks ServiceFeedback[]
   Logs             Logs[]
 }
 
+model Age {
+  id          Int          @unique @default(autoincrement())
+  description String
+  Submitters  Submitters[]
+}
+
 model ServiceFeedback {
-  id                     Int                @unique @default(autoincrement())
-  submitter              Submitters         @relation(fields: [submitterId], references: [id])
-  submitterId            Int
-  submittername          String
-  age                    Int?
-  service                Services?          @relation(fields: [serviceId], references: [id])
-  serviceDesc            String?
-  serviceId              Int
-  otherService           String?            @db.Text
+  id            Int        @unique @default(autoincrement())
+  submitter     Submitters @relation(fields: [submitterId], references: [id])
+  submitterId   Int
+  submittername String
+  service       Services?  @relation(fields: [serviceId], references: [id])
+  serviceDesc   String?
+  serviceId     Int
+  otherService  String?    @db.Text
+
   serviceKind            ServiceKind?       @relation(fields: [serviceKindId], references: [id])
   serviceKindId          Int
   serviceKindDescription String?
@@ -62,6 +71,15 @@ model ServiceFeedback {
   logs                   Logs[]
   created_at             DateTime           @default(now())
   updated_at             DateTime           @updatedAt
+  ClientType             ClientType?        @relation(fields: [clientTypeId], references: [id])
+  clientTypeId           Int?
+}
+
+model ClientType {
+  id              Int               @unique @default(autoincrement())
+  type            String
+  ServiceFeedback ServiceFeedback[]
+  Submitters      Submitters[]
 }
 
 model FeedbackQuestion {

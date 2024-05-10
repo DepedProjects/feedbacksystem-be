@@ -266,6 +266,32 @@ feedBackRouter.post("/createCategory", async (req, res) => {
   }
 });
 
+feedBackRouter.post("/createAgebracket", async (req, res) => {
+  try {
+    const data = req.body;
+
+    const createdAgeBracket = await feedBackService.addAgebracket(data);
+
+    res.status(201).json(createdAgeBracket);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+feedBackRouter.post("/createClientType", async (req, res) => {
+  try {
+    const data = req.body;
+
+    const createdClient = await feedBackService.addClientType(data);
+
+    res.status(201).json(createdClient);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 feedBackRouter.post("/createQuestion", async (req, res) => {
   try {
     const data = req.body;

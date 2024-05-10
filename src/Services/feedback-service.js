@@ -300,7 +300,8 @@ async function submitFeedback(feedbackData) {
       submitter: {
         name: feedbackData.submitter.name,
         email: feedbackData.submitter.email,
-        age: feedbackData.submitter.age,
+        ageBracket: feedbackData.submitter.ageId,
+        clientType: feedbackData.submitter.clientTypeId,
         sex: feedbackData.submitter.sex,
       },
       serviceFeedback: {
@@ -357,6 +358,26 @@ async function addCategory(data) {
     const formattedResult = formatDateStrings(newCategory);
 
     return formattedResult;
+  } catch (error) {
+    console.error("Error!", error);
+    throw new Error("Error in Process");
+  }
+}
+
+async function addAgebracket(data) {
+  try {
+    const ageBracket = await feedbackDao.addAge(data);
+    return ageBracket;
+  } catch (error) {
+    console.error("Error!", error);
+    throw new Error("Error in Process");
+  }
+}
+
+async function addClientType(data) {
+  try {
+    const client = await feedbackDao.addClientType(data);
+    return client;
   } catch (error) {
     console.error("Error!", error);
     throw new Error("Error in Process");
@@ -509,12 +530,12 @@ async function filteredServices(relatedOfficeId, serviceKindId) {
     // If either relatedOfficeId or serviceKindId is null, add the desired response entry
     if (relatedOfficeId !== null || serviceKindId !== null) {
       const otherConcern = {
-        id: 4,
+        id: 6,
         title: "Other Services",
         relatedOfficeId: null,
         serviceKindId: null,
-        created_at: "2024-04-27 07:33:11.950Z",
-        updated_at: "2024-04-27 07:33:11.950Z",
+        created_at: "2024-04-24 10:19:32.309Z",
+        updated_at: "2024-04-24 10:19:32.309Z",
       };
       service.push(otherConcern);
     }
@@ -536,7 +557,9 @@ module.exports = {
   fetchAllSubmitters,
   fetchAllServiceKinds,
   submitFeedback,
+  addAgebracket,
   addCategory,
+  addClientType,
   addQuestion,
   addServiceKind,
   addServiceType,
