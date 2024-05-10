@@ -173,6 +173,26 @@ feedBackRouter.get("/questions", async (req, res) => {
   }
 });
 
+feedBackRouter.get("/clientTypes", async (req, res) => {
+  try {
+    const clients = await feedBackService.fetchAllClientTypes();
+    res.json(clients);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+feedBackRouter.get("/ageBrackets", async (req, res) => {
+  try {
+    const ages = await feedBackService.fetchAllAgeBrackets();
+    res.json(ages);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 feedBackRouter.get("/services", async (req, res) => {
   try {
     const services = await feedBackService.fetchAllServices();

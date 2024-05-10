@@ -22,6 +22,26 @@ async function getAllServices() {
   }
 }
 
+async function getAllAgeBrackets() {
+  try {
+    const brackets = await prisma.age.findMany();
+    return brackets;
+  } catch (error) {
+    console.error("Error retrieving brackets data! ", error);
+    throw new Error("Error retrieving brackets data");
+  }
+}
+
+async function getAllClientTypes() {
+  try {
+    const types = await prisma.clientType.findMany();
+    return types;
+  } catch (error) {
+    console.error("Error retrieving clientType data! ", error);
+    throw new Error("Error retrieving clientType data");
+  }
+}
+
 async function getAllCategories() {
   try {
     const categories = await prisma.categories.findMany();
@@ -334,6 +354,8 @@ async function deleteOffice(id) {
 module.exports = {
   dateRangeFiltered,
   filterService,
+  getAllAgeBrackets,
+  getAllClientTypes,
   getAllQuestions,
   getAllServices,
   getAllCategories,

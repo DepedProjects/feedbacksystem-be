@@ -90,6 +90,26 @@ async function fetchAllCategories() {
   }
 }
 
+async function fetchAllAgeBrackets() {
+  try {
+    const fetchedBrackets = await feedbackDao.getAllAgeBrackets();
+    return fetchedBrackets;
+  } catch (error) {
+    console.error("Error in Process:", error);
+    throw new Error("Error in Process");
+  }
+}
+
+async function fetchAllClientTypes() {
+  try {
+    const fetchedClientTypes = await feedbackDao.getAllClientTypes();
+    return fetchedClientTypes;
+  } catch (error) {
+    console.error("Error in Process:", error);
+    throw new Error("Error in Process");
+  }
+}
+
 async function fetchAllFeedbacks() {
   try {
     const fetchedFeedbacks = await feedbackDao.getAllFeedbacks();
@@ -549,6 +569,8 @@ async function filteredServices(relatedOfficeId, serviceKindId) {
 
 module.exports = {
   filteredServices,
+  fetchAllAgeBrackets,
+  fetchAllClientTypes,
   fetchAllQuestions,
   fetchAllServices,
   fetchAllCategories,
