@@ -35,21 +35,25 @@ model Submitters {
 }
 
 model Age {
-  id          Int          @unique @default(autoincrement())
-  description String
-  Submitters  Submitters[]
+  id              Int               @unique @default(autoincrement())
+  description     String
+  Submitters      Submitters[]
+  ServiceFeedback ServiceFeedback[]
 }
 
 model ServiceFeedback {
-  id            Int        @unique @default(autoincrement())
-  submitter     Submitters @relation(fields: [submitterId], references: [id])
-  submitterId   Int
-  submittername String
-  service       Services?  @relation(fields: [serviceId], references: [id])
-  serviceDesc   String?
-  serviceId     Int
-  otherService  String?    @db.Text
-
+  id                     Int                @unique @default(autoincrement())
+  submitter              Submitters         @relation(fields: [submitterId], references: [id])
+  submitterId            Int
+  submittername          String
+  service                Services?          @relation(fields: [serviceId], references: [id])
+  serviceDesc            String?
+  serviceId              Int
+  otherService           String?            @db.Text
+  ClientType             ClientType?        @relation(fields: [typeId], references: [id])
+  typeId                 Int?
+  Age                    Age?               @relation(fields: [ageBracketId], references: [id])
+  ageBracketId           Int?
   serviceKind            ServiceKind?       @relation(fields: [serviceKindId], references: [id])
   serviceKindId          Int
   serviceKindDescription String?
@@ -71,8 +75,6 @@ model ServiceFeedback {
   logs                   Logs[]
   created_at             DateTime           @default(now())
   updated_at             DateTime           @updatedAt
-  ClientType             ClientType?        @relation(fields: [clientTypeId], references: [id])
-  clientTypeId           Int?
 }
 
 model ClientType {

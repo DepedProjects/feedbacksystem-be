@@ -170,8 +170,9 @@ async function submitFeedback(feedbackData) {
       submitter = await feedbackDao.createSubmitter({
         name: feedbackData.submitter.name,
         email: feedbackData.submitter.email,
-        age: feedbackData.submitter.age,
         sex: feedbackData.submitter.sex,
+        ageId: feedbackData.submitter.ageId,
+        clientTypeId: feedbackData.submitter.clientTypeId, // Pass clientTypeId here
       });
     }
 
@@ -258,8 +259,9 @@ async function submitFeedback(feedbackData) {
             id: feedbackData.serviceFeedback.serviceId,
           },
         },
+        ClientType: { connect: { id: feedbackData.submitter.clientTypeId } }, // Connect clientTypeId through ClientType
+        Age: { connect: { id: feedbackData.submitter.ageId } },
         submittername: submitter.name,
-        age: submitter.age,
         overallComment: feedbackData.serviceFeedback.overallComment,
         uniqueIdentifier: uuidv4(),
         averageRating: averageRating,
@@ -320,8 +322,8 @@ async function submitFeedback(feedbackData) {
       submitter: {
         name: feedbackData.submitter.name,
         email: feedbackData.submitter.email,
-        ageBracket: feedbackData.submitter.ageId,
-        clientType: feedbackData.submitter.clientTypeId,
+        ageId: feedbackData.submitter.ageId,
+        clientTypeId: feedbackData.submitter.clientTypeId,
         sex: feedbackData.submitter.sex,
       },
       serviceFeedback: {
@@ -550,7 +552,7 @@ async function filteredServices(relatedOfficeId, serviceKindId) {
     // If either relatedOfficeId or serviceKindId is null, add the desired response entry
     if (relatedOfficeId !== null || serviceKindId !== null) {
       const otherConcern = {
-        id: 6,
+        id: 4,
         title: "Other Services",
         relatedOfficeId: null,
         serviceKindId: null,
