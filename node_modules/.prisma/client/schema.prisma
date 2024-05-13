@@ -63,12 +63,16 @@ model ServiceFeedback {
   officeId               Int
   officeName             String?
   consent                String?
+  awareCC                String?
+  seeCC                  String?
+  useCC                  String?
   overallComment         String?
-  averageRating          Int
+  averageRating          Float
   responsiveness         Int
   reliability            Int
   accessAndFacilities    Int
   communication          Int
+  costs                  Int
   integrity              Int
   assurance              Int
   outcome                Int

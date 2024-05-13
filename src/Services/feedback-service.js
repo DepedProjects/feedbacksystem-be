@@ -279,7 +279,7 @@ async function submitFeedback(feedbackData) {
             id: feedbackData.serviceFeedback.serviceId,
           },
         },
-        ClientType: { connect: { id: feedbackData.submitter.clientTypeId } }, // Connect clientTypeId through ClientType
+        ClientType: { connect: { id: feedbackData.submitter.clientTypeId } },
         Age: { connect: { id: feedbackData.submitter.ageId } },
         submittername: submitter.name,
         overallComment: feedbackData.serviceFeedback.overallComment,
@@ -289,10 +289,14 @@ async function submitFeedback(feedbackData) {
         reliability: 0,
         accessAndFacilities: 0,
         communication: 0,
+        costs: 0,
         integrity: 0,
         assurance: 0,
         outcome: 0,
         consent: feedbackData.formResponse.consent,
+        awareCC: feedbackData.citizencharter.awareCC,
+        seeCC: feedbackData.citizencharter.seeCC,
+        useCC: feedbackData.citizencharter.useCC,
         serviceDesc: serviceRelated.title,
         officeName: officeRelated.title,
         serviceKindDescription: serviceKindDescription.description, // Include serviceKindDescription
@@ -348,6 +352,11 @@ async function submitFeedback(feedbackData) {
         ageBracket: ageBracket.description,
         sex: feedbackData.submitter.sex,
       },
+      citizencharter:{
+        awareCC: feedbackData.citizencharter.awareCC,
+        seeCC: feedbackData.citizencharter.seeCC,
+        useCC: feedbackData.citizencharter.useCC,
+      },
       serviceFeedback: {
         serviceKindId: feedbackData.serviceFeedback.serviceKindId,
         serviceKindDescription: serviceKindDescription.description, // Include serviceKindDescription
@@ -372,14 +381,14 @@ async function submitFeedback(feedbackData) {
 // Helper function to get the category field based on categoryId
 function getCategoryField(categoryId) {
   const categoryFieldMap = {
-    2: "responsiveness",
-    3: "reliability",
-    4: "accessAndFacilities",
-    5: "communication",
-    7: "integrity",
-    8: "assurance",
-    9: "outcome",
-    // Add more cases as needed for other categoryIds
+    1: "responsiveness",
+    2: "reliability",
+    3: "accessAndFacilities",
+    4: "communication",
+    5: "costs",
+    6: "integrity",
+    7: "assurance",
+    8: "outcome",
   };
   return categoryFieldMap[categoryId];
 }
