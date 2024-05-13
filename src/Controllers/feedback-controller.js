@@ -53,7 +53,8 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
     const headers = [
       "consent",
       "submittername",
-      "age",
+      "relatedClientType",
+      "ageBracket",
       "serviceDesc",
       "otherService",
       "serviceKindDescription",
@@ -74,7 +75,8 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
     const headerMappings = {
       consent: { name: "Consent", width: 20 },
       submittername: { name: "Submitter", width: 50 },
-      age: { name: "Age", width: 20 },
+      relatedClientType: { name: "Transaction Type", width: 20 },
+      ageBracket: { name: "Age Bracket", width: 20 },
       serviceDesc: { name: "Service", width: 100 },
       otherService: { name: "Other Service", width: 100 },
       serviceKindDescription: { name: "Service Type", width: 20 },
@@ -125,6 +127,7 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
     // Add data rows and set horizontal alignment
     data.forEach((row) => {
       row.created_at = dayjs(row.created_at).format("MM-DD-YYYY hh:mm A");
+      row.averageRating = parseFloat(row.averageRating.toFixed(2));
       const rowData = headers.map((header) => row[header]);
       const dataRow = worksheet.addRow(rowData);
       dataRow.eachCell((cell) => {

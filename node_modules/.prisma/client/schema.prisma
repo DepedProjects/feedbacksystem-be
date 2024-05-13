@@ -57,6 +57,8 @@ model ServiceFeedback {
   serviceKind            ServiceKind?       @relation(fields: [serviceKindId], references: [id])
   serviceKindId          Int
   serviceKindDescription String?
+  relatedClientType      String?
+  ageBracket             String?
   officeVisited          Offices            @relation(fields: [officeId], references: [id])
   officeId               Int
   officeName             String?

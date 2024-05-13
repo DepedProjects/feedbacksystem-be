@@ -229,6 +229,26 @@ async function submitFeedback(feedbackData) {
       },
     });
 
+    // Fetch relatedClientType from the database based on clientTypeId
+    const relatedClientType = await prisma.clientType.findUnique({
+      where: {
+        id: feedbackData.submitter.clientTypeId,
+      },
+      select: {
+        type: true,
+      },
+    });
+
+    // Fetch ageBracket from the database based on ageId
+    const ageBracket = await prisma.age.findUnique({
+      where: {
+        id: feedbackData.submitter.ageId,
+      },
+      select: {
+        description: true,
+      },
+    });
+
     // Calculate average rating from the provided ratings
     const averageRating =
       feedbackData.data.reduce(
@@ -276,6 +296,8 @@ async function submitFeedback(feedbackData) {
         serviceDesc: serviceRelated.title,
         officeName: officeRelated.title,
         serviceKindDescription: serviceKindDescription.description, // Include serviceKindDescription
+        relatedClientType: relatedClientType.type,
+        ageBracket: ageBracket.description,
         otherService: feedbackData.serviceFeedback.otherService,
       },
     });
@@ -322,8 +344,8 @@ async function submitFeedback(feedbackData) {
       submitter: {
         name: feedbackData.submitter.name,
         email: feedbackData.submitter.email,
-        ageId: feedbackData.submitter.ageId,
-        clientTypeId: feedbackData.submitter.clientTypeId,
+        relatedClientType: relatedClientType.type,
+        ageBracket: ageBracket.description,
         sex: feedbackData.submitter.sex,
       },
       serviceFeedback: {
@@ -337,7 +359,7 @@ async function submitFeedback(feedbackData) {
         overallComment: feedbackData.serviceFeedback.overallComment,
       },
       data: feedbackData.data,
-      averageRating: averageRating,
+      averageRating: parseFloat(averageRating.toFixed(2)),
       created_at: createdDate,
     };
 
