@@ -352,7 +352,7 @@ async function submitFeedback(feedbackData) {
         ageBracket: ageBracket.description,
         sex: feedbackData.submitter.sex,
       },
-      citizencharter:{
+      citizencharter: {
         awareCC: feedbackData.citizencharter.awareCC,
         seeCC: feedbackData.citizencharter.seeCC,
         useCC: feedbackData.citizencharter.useCC,
@@ -584,11 +584,11 @@ async function filteredServices(relatedOfficeId, serviceKindId) {
     if (relatedOfficeId !== null || serviceKindId !== null) {
       const otherConcern = {
         id: 4,
-        title: "Other Services",
+        title: "Other Concerns",
         relatedOfficeId: null,
         serviceKindId: null,
-        created_at: "2024-04-24 10:19:32.309Z",
-        updated_at: "2024-04-24 10:19:32.309Z",
+        created_at: "2024-05-15",
+        updated_at: "2024-05-15",
       };
       service.push(otherConcern);
     }
