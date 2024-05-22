@@ -577,11 +577,10 @@ async function filteredServices(relatedOfficeId, serviceKindId) {
   try {
     const service = await feedbackDao.filterService(
       relatedOfficeId,
-      serviceKindId
     );
 
     // If either relatedOfficeId or serviceKindId is null, add the desired response entry
-    if (relatedOfficeId !== null || serviceKindId !== null) {
+    if (relatedOfficeId !== null) {
       const otherConcern = {
         id: 4,
         title: "Other Concerns",

@@ -55,7 +55,7 @@ model ServiceFeedback {
   Age                    Age?               @relation(fields: [ageBracketId], references: [id])
   ageBracketId           Int?
   serviceKind            ServiceKind?       @relation(fields: [serviceKindId], references: [id])
-  serviceKindId          Int
+  serviceKindId          Int?
   serviceKindDescription String?
   relatedClientType      String?
   ageBracket             String?
