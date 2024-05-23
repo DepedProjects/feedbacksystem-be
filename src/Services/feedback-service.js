@@ -206,16 +206,11 @@ async function submitFeedback(feedbackData) {
       },
       select: {
         title: true,
-      },
-    });
-
-    // Fetch serviceKindDescription from the database based on serviceKindId
-    const serviceKindDescription = await prisma.serviceKind.findUnique({
-      where: {
-        id: feedbackData.serviceFeedback.serviceKindId,
-      },
-      select: {
-        description: true,
+        serviceKind: {
+          select: {
+            description: true,
+          },
+        },
       },
     });
 
@@ -256,17 +251,14 @@ async function submitFeedback(feedbackData) {
         0
       ) / feedbackData.data.length;
 
+    const formattedAverageRating = averageRating.toFixed(2);
+
     // Create serviceFeedback using the existing or new submitter
     const serviceFeedback = await prisma.serviceFeedback.create({
       data: {
         submitter: {
           connect: {
             id: submitter.id,
-          },
-        },
-        serviceKind: {
-          connect: {
-            id: feedbackData.serviceFeedback.serviceKindId,
           },
         },
         officeVisited: {
@@ -284,7 +276,7 @@ async function submitFeedback(feedbackData) {
         submittername: submitter.name,
         overallComment: feedbackData.serviceFeedback.overallComment,
         uniqueIdentifier: uuidv4(),
-        averageRating: averageRating,
+        averageRating: parseFloat(formattedAverageRating),
         responsiveness: 0,
         reliability: 0,
         accessAndFacilities: 0,
@@ -299,9 +291,9 @@ async function submitFeedback(feedbackData) {
         useCC: feedbackData.citizencharter.useCC,
         serviceDesc: serviceRelated.title,
         officeName: officeRelated.title,
-        serviceKindDescription: serviceKindDescription.description, // Include serviceKindDescription
         relatedClientType: relatedClientType.type,
         ageBracket: ageBracket.description,
+        serviceKindDescription: serviceRelated.serviceKind?.description, // Add serviceKindDescription
         otherService: feedbackData.serviceFeedback.otherService,
       },
     });
@@ -359,7 +351,7 @@ async function submitFeedback(feedbackData) {
       },
       serviceFeedback: {
         serviceKindId: feedbackData.serviceFeedback.serviceKindId,
-        serviceKindDescription: serviceKindDescription.description, // Include serviceKindDescription
+        serviceKindDescription: serviceRelated.serviceKind?.description, // Include serviceKindDescription
         otherService: feedbackData.otherService,
         officeId: feedbackData.serviceFeedback.officeId,
         officeName: officeRelated.title,
@@ -368,7 +360,7 @@ async function submitFeedback(feedbackData) {
         overallComment: feedbackData.serviceFeedback.overallComment,
       },
       data: feedbackData.data,
-      averageRating: parseFloat(averageRating.toFixed(2)),
+      averageRating: parseFloat(formattedAverageRating),
       created_at: createdDate,
     };
 
@@ -575,9 +567,7 @@ async function dateRangeFilter(startDate, endDate, officeId) {
 
 async function filteredServices(relatedOfficeId, serviceKindId) {
   try {
-    const service = await feedbackDao.filterService(
-      relatedOfficeId,
-    );
+    const service = await feedbackDao.filterService(relatedOfficeId);
 
     // If either relatedOfficeId or serviceKindId is null, add the desired response entry
     if (relatedOfficeId !== null) {
