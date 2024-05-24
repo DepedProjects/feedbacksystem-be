@@ -8,8 +8,8 @@ const allowedOrigins = [
   "https://feedback.depedimuscity.com:8030",
   "https://synergy.depedimuscity.com:8021",
   "http://synergy.depedimuscity.com:8021",
-  "http://172.16.0.21:8021",
-  "https://172.16.0.21:8021",
+  "http://172.16.0.21",
+  "https://172.16.0.21",
   "http://localhost:8021",
 ];
 
