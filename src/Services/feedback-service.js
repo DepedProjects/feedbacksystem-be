@@ -550,6 +550,19 @@ async function deleteOffice(id) {
   }
 }
 
+async function deleteAService(id) {
+  try {
+    const delService = await feedbackDao.deleteService(id);
+    return {
+      message: "Service Deleted Successfully",
+      data: delService,
+    };
+  } catch (error) {
+    console.error("Error!", error);
+    throw new Error("Error in Process");
+  }
+}
+
 async function dateRangeFilter(startDate, endDate, officeId) {
   try {
     const filteredData = await feedbackDao.dateRangeFiltered(
@@ -613,4 +626,5 @@ module.exports = {
   formatDateStrings,
   dateRangeFilter,
   deleteOffice,
+  deleteAService,
 };

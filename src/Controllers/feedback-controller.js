@@ -412,7 +412,7 @@ feedBackRouter.get("/submittersByDate", async (req, res) => {
       feedbackSubmitters = await feedBackService.dateRangeFilter();
     }
 
-    res.json({ feedbackSubmitters });
+    res.status(200).json({ feedbackSubmitters });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -425,7 +425,20 @@ feedBackRouter.delete("/deleteOffice/:id", async (req, res) => {
 
     const deletedOfficeData = await feedBackService.deleteOffice(offId);
 
-    res.json({ deletedOfficeData });
+    res.status(200).json({ deletedOfficeData });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+feedBackRouter.delete("/deleteService/:id", async (req, res) => {
+  try {
+    const servId = parseInt(req.params.id, 10);
+
+    const deletedServiceData = await feedBackService.deleteAService(servId);
+
+    res.status(200).json({ deletedServiceData });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

@@ -352,6 +352,20 @@ async function deleteOffice(id) {
   }
 }
 
+async function deleteService(id) {
+  try {
+    const deletedService = await prisma.services.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    return deletedService;
+  } catch (error) {
+    console.error("Error erasing table data:", error);
+  }
+}
+
 module.exports = {
   dateRangeFiltered,
   filterService,
@@ -379,4 +393,5 @@ module.exports = {
   updateService,
   deleteAllRecords,
   deleteOffice,
+  deleteService,
 };
