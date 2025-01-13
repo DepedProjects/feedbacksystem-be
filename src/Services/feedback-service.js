@@ -171,7 +171,8 @@ async function submitFeedback(feedbackData) {
         name: feedbackData.submitter.name,
         email: feedbackData.submitter.email,
         sex: feedbackData.submitter.sex,
-        ageId: feedbackData.submitter.ageId,
+        // ageId: feedbackData.submitter.ageId,
+        specAge: parseInt(feedbackData.submitter.specAge),
         clientTypeId: feedbackData.submitter.clientTypeId, // Pass clientTypeId here
       });
     }
@@ -235,14 +236,14 @@ async function submitFeedback(feedbackData) {
     });
 
     // Fetch ageBracket from the database based on ageId
-    const ageBracket = await prisma.age.findUnique({
-      where: {
-        id: feedbackData.submitter.ageId,
-      },
-      select: {
-        description: true,
-      },
-    });
+    // const ageBracket = await prisma.age.findUnique({
+    //   where: {
+    //     id: feedbackData.submitter.ageId,
+    //   },
+    //   select: {
+    //     description: true,
+    //   },
+    // });
 
     // Calculate average rating from the provided ratings
     const averageRating =
@@ -272,7 +273,7 @@ async function submitFeedback(feedbackData) {
           },
         },
         ClientType: { connect: { id: feedbackData.submitter.clientTypeId } },
-        Age: { connect: { id: feedbackData.submitter.ageId } },
+        // Age: { connect: { id: feedbackData.submitter.ageId } },
         submittername: submitter.name,
         overallComment: feedbackData.serviceFeedback.overallComment,
         uniqueIdentifier: uuidv4(),
@@ -292,9 +293,11 @@ async function submitFeedback(feedbackData) {
         serviceDesc: serviceRelated.title,
         officeName: officeRelated.title,
         relatedClientType: relatedClientType.type,
-        ageBracket: ageBracket.description,
+        // ageBracket: ageBracket.description,
+        specificAge: submitter.specAge,
         serviceKindDescription: serviceRelated.serviceKind?.description, // Add serviceKindDescription
         otherService: feedbackData.serviceFeedback.otherService,
+        startTime: feedbackData.serviceFeedback.startTime || new Date(),
       },
     });
 
@@ -341,7 +344,8 @@ async function submitFeedback(feedbackData) {
         name: feedbackData.submitter.name,
         email: feedbackData.submitter.email,
         relatedClientType: relatedClientType.type,
-        ageBracket: ageBracket.description,
+        // ageBracket: ageBracket.description,
+        specAge: feedbackData.submitter.specAge,
         sex: feedbackData.submitter.sex,
       },
       citizencharter: {
@@ -350,6 +354,7 @@ async function submitFeedback(feedbackData) {
         useCC: feedbackData.citizencharter.useCC,
       },
       serviceFeedback: {
+        id: feedbackData.serviceFeedback.id,
         serviceKindId: feedbackData.serviceFeedback.serviceKindId,
         serviceKindDescription: serviceRelated.serviceKind?.description, // Include serviceKindDescription
         otherService: feedbackData.otherService,
@@ -358,6 +363,7 @@ async function submitFeedback(feedbackData) {
         serviceId: feedbackData.serviceFeedback.serviceId,
         serviceDesc: serviceRelated.title,
         overallComment: feedbackData.serviceFeedback.overallComment,
+        startTime: feedbackData.serviceFeedback.startTime,
       },
       data: feedbackData.data,
       averageRating: parseFloat(formattedAverageRating),

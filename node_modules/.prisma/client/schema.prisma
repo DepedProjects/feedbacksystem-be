@@ -27,6 +27,7 @@ model Submitters {
   email            String
   age              Age?              @relation(fields: [ageId], references: [id])
   ageId            Int?
+  specAge          Int?
   clientType       ClientType?       @relation(fields: [clientTypeId], references: [id])
   clientTypeId     Int?
   sex              String
@@ -43,6 +44,7 @@ model Age {
 
 model ServiceFeedback {
   id                     Int                @unique @default(autoincrement())
+  startTime              DateTime?          @default(now())
   submitter              Submitters         @relation(fields: [submitterId], references: [id])
   submitterId            Int
   submittername          String
@@ -54,6 +56,7 @@ model ServiceFeedback {
   typeId                 Int?
   Age                    Age?               @relation(fields: [ageBracketId], references: [id])
   ageBracketId           Int?
+  specificAge            Int?
   serviceKind            ServiceKind?       @relation(fields: [serviceKindId], references: [id])
   serviceKindId          Int?
   serviceKindDescription String?

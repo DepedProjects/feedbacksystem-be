@@ -100,7 +100,8 @@ async function createSubmitter(data) {
         name: data.name,
         email: data.email,
         clientType: { connect: { id: data.clientTypeId } },
-        age: { connect: { id: data.ageId } },
+        // age: { connect: { id: data.ageId } },
+        specAge: data.specAge,
         sex: data.sex,
       },
     });

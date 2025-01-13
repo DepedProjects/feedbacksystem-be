@@ -42,6 +42,36 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
       officeId
     );
 
+    // Define a mapping function to transform numerical ratings to descriptions
+    const mapRatingToDescription = (rating) => {
+      switch (rating) {
+        case 5:
+          return "Strongly Agree (5)";
+        case 4:
+          return "Agree (4)";
+        case 3:
+          return "Neither Agree nor Disagree (3)";
+        case 2:
+          return "Disagree (2)";
+        case 1:
+          return "Strongly Disagree (1)";
+        default:
+          return "Not Applicable"; // Handle unexpected or missing values
+      }
+    };
+
+    const transformedData = data.map((row) => ({
+      ...row,
+      responsiveness: mapRatingToDescription(row.responsiveness),
+      reliability: mapRatingToDescription(row.reliability),
+      accessAndFacilities: mapRatingToDescription(row.accessAndFacilities),
+      communication: mapRatingToDescription(row.communication),
+      costs: mapRatingToDescription(row.costs),
+      integrity: mapRatingToDescription(row.integrity),
+      assurance: mapRatingToDescription(row.assurance),
+      outcome: mapRatingToDescription(row.outcome),
+    }));
+
     // Generate a dynamic filename based on the current timestamp
     const currentDate = new Date();
     const year = currentDate.getFullYear();
@@ -51,10 +81,15 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
 
     // Define the headers to be included in the Excel file
     const headers = [
+      "id",
       "consent",
+      "startTime",
       "submittername",
       "relatedClientType",
       "ageBracket",
+      "awareCC",
+      "seeCC",
+      "useCC",
       "serviceDesc",
       "otherService",
       "serviceKindDescription",
@@ -63,6 +98,7 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
       "reliability",
       "accessAndFacilities",
       "communication",
+      "costs",
       "integrity",
       "assurance",
       "outcome",
@@ -73,27 +109,66 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
 
     // Map headers to desired column names
     const headerMappings = {
+      id: { name: "Id", width: 20 },
       consent: { name: "Consent", width: 20 },
-      submittername: { name: "Submitter", width: 30 },
-      relatedClientType: { name: "Transaction Type", width: 100 },
+      startTime: { name: "Start Time", width: 25 },
+      submittername: { name: "Name", width: 30 },
+      relatedClientType: { name: "Customer Type", width: 100 },
+      awareCC: {
+        name: "Are you aware of the Citizen's Charter - document of the SDO services and requirements?",
+        width: 100,
+      },
+      seeCC: {
+        name: "Did you see the SDO Citizen's Charter (online or posted in the office)?",
+        width: 100,
+      },
+      useCC: {
+        name: "Did you use the SDO Citizen's Charter as a guide for the service you availed?",
+        width: 100,
+      },
       ageBracket: { name: "Age Bracket", width: 20 },
-      serviceDesc: { name: "Service", width: 80 },
+      serviceDesc: { name: "Services Availed", width: 80 },
       otherService: { name: "Other Service", width: 80 },
       serviceKindDescription: { name: "Service Type", width: 20 },
-      officeName: { name: "Office", width: 80 },
-      responsiveness: { name: "Responsiveness", width: 20 },
-      reliability: { name: "Reliability", width: 20 },
-      accessAndFacilities: { name: "Access and Facilities", width: 20 },
-      communication: { name: "Communication", width: 20 },
-      integrity: { name: "Integrity", width: 20 },
-      assurance: { name: "Assurance", width: 20 },
-      outcome: { name: "Outcome", width: 20 },
+      officeName: { name: "Office Transacted", width: 80 },
+      responsiveness: {
+        name: "Service Quality Dimension (SQD).SQD1 - I spent an acceptable amount of time to complete my transaction (Responsiveness)",
+        width: 300,
+      },
+      reliability: {
+        name: "Service Quality Dimension (SQD).SQD2 - The office accurately informed and followed the transaction's requirements and steps (Reliability)",
+        width: 300,
+      },
+      accessAndFacilities: {
+        name: "Service Quality Dimension (SQD).SQD3 - My transaction (including steps and payment) was simple and convenient (Access and Facilities)",
+        width: 300,
+      },
+      communication: {
+        name: "Service Quality Dimension (SQD).SDQ4 - I easily found information about my transaction from the office or its website (Communication)",
+        width: 300,
+      },
+      costs: {
+        name: "Service Quality Dimension (SQD).SQD5 - I paid an acceptable amount of fees for my transaction (Costs)",
+        width: 300,
+      },
+      integrity: {
+        name: "Service Quality Dimension (SQD).SQD6 - I am confident my transaction was secure (Integrity)",
+        width: 300,
+      },
+      assurance: {
+        name: "Service Quality Dimension (SQD).SQD7 - The office's support was quick to respond (Assurance)",
+        width: 300,
+      },
+      outcome: {
+        name: "Service Quality Dimension (SQD).SQD8 - I got what I needed from the government office (Outcome)",
+        width: 300,
+      },
       averageRating: {
         name: "Overall Satisfaction / Average Rating",
         width: 40,
       },
       overallComment: { name: "Comment / Suggestions", width: 80 },
-      created_at: { name: "Submitted at", width: 25 },
+      created_at: { name: "Completion time", width: 25 },
     };
 
     // Create a new Excel workbook
@@ -125,8 +200,11 @@ feedBackRouter.get("/filteredReport/exportExcel", async (req, res) => {
     });
 
     // Add data rows and set horizontal alignment
-    data.forEach((row) => {
+    transformedData.forEach((row) => {
       row.created_at = dayjs(row.created_at).format("MM-DD-YYYY hh:mm A");
+      row.startTime = row.startTime
+        ? dayjs(row.startTime).format("MM-DD-YYYY hh:mm A")
+        : null;
       row.averageRating = parseFloat(row.averageRating.toFixed(2));
       const rowData = headers.map((header) => row[header]);
       const dataRow = worksheet.addRow(rowData);
