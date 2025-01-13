@@ -297,7 +297,9 @@ async function submitFeedback(feedbackData) {
         specificAge: submitter.specAge,
         serviceKindDescription: serviceRelated.serviceKind?.description, // Add serviceKindDescription
         otherService: feedbackData.serviceFeedback.otherService,
-        startTime: feedbackData.serviceFeedback.startTime || new Date(),
+        startTime: feedbackData.serviceFeedback.startTime
+          ? new Date(feedbackData.serviceFeedback.startTime).toISOString()
+          : new Date().toISOString(),
       },
     });
 
