@@ -7,8 +7,8 @@ async function getAllQuestions() {
     const questions = await prisma.questions.findMany();
     return questions;
   } catch (error) {
-    console.error("Error retrieving users data! ", error);
-    throw new Error("Error retrieving users data");
+    console.error("Error retrieving questions data! ", error);
+    throw new Error("Error retrieving questions data");
   }
 }
 

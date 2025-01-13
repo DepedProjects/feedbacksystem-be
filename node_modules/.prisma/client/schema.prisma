@@ -18,51 +18,51 @@ model users {
   role       String
   officeName String?
   officeId   Int?
-  office     Offices? @relation(fields: [officeId], references: [id])
+  office     offices? @relation(fields: [officeId], references: [id])
 }
 
-model Submitters {
+model submitters {
   id               Int               @unique @default(autoincrement())
   name             String?
   email            String
-  age              Age?              @relation(fields: [ageId], references: [id])
+  age              age?              @relation(fields: [ageId], references: [id])
   ageId            Int?
   specAge          Int?
-  clientType       ClientType?       @relation(fields: [clientTypeId], references: [id])
+  clientType       clientType?       @relation(fields: [clientTypeId], references: [id])
   clientTypeId     Int?
   sex              String
-  serviceFeedbacks ServiceFeedback[]
-  Logs             Logs[]
+  serviceFeedbacks serviceFeedback[]
+  Logs             logs[]
 }
 
-model Age {
+model age {
   id              Int               @unique @default(autoincrement())
   description     String
-  Submitters      Submitters[]
-  ServiceFeedback ServiceFeedback[]
+  Submitters      submitters[]
+  ServiceFeedback serviceFeedback[]
 }
 
-model ServiceFeedback {
+model serviceFeedback {
   id                     Int                @unique @default(autoincrement())
   startTime              DateTime?          @default(now())
-  submitter              Submitters         @relation(fields: [submitterId], references: [id])
+  submitter              submitters         @relation(fields: [submitterId], references: [id])
   submitterId            Int
   submittername          String
-  service                Services?          @relation(fields: [serviceId], references: [id])
+  service                services?          @relation(fields: [serviceId], references: [id])
   serviceDesc            String?
   serviceId              Int
   otherService           String?            @db.Text
-  ClientType             ClientType?        @relation(fields: [typeId], references: [id])
+  ClientType             clientType?        @relation(fields: [typeId], references: [id])
   typeId                 Int?
-  Age                    Age?               @relation(fields: [ageBracketId], references: [id])
+  Age                    age?               @relation(fields: [ageBracketId], references: [id])
   ageBracketId           Int?
   specificAge            Int?
-  serviceKind            ServiceKind?       @relation(fields: [serviceKindId], references: [id])
+  serviceKind            serviceKind?       @relation(fields: [serviceKindId], references: [id])
   serviceKindId          Int?
   serviceKindDescription String?
   relatedClientType      String?
   ageBracket             String?
-  officeVisited          Offices            @relation(fields: [officeId], references: [id])
+  officeVisited          offices            @relation(fields: [officeId], references: [id])
   officeId               Int
   officeName             String?
   consent                String?
@@ -80,89 +80,89 @@ model ServiceFeedback {
   assurance              Int
   outcome                Int
   uniqueIdentifier       String
-  feedbackQuestions      FeedbackQuestion[]
-  logs                   Logs[]
+  feedbackQuestions      feedbackQuestion[]
+  logs                   logs[]
   created_at             DateTime           @default(now())
   updated_at             DateTime           @updatedAt
 }
 
-model ClientType {
+model clientType {
   id              Int               @unique @default(autoincrement())
   type            String
-  ServiceFeedback ServiceFeedback[]
-  Submitters      Submitters[]
+  ServiceFeedback serviceFeedback[]
+  Submitters      submitters[]
 }
 
-model FeedbackQuestion {
+model feedbackQuestion {
   id                Int             @unique @default(autoincrement())
-  category          Categories      @relation(fields: [categoryId], references: [id])
+  category          categories      @relation(fields: [categoryId], references: [id])
   categoryId        Int
-  question          Questions       @relation(fields: [questionId], references: [id])
+  question          questions       @relation(fields: [questionId], references: [id])
   questionId        Int
   rating            Int
-  serviceFeedback   ServiceFeedback @relation(fields: [serviceFeedbackId], references: [id])
+  serviceFeedback   serviceFeedback @relation(fields: [serviceFeedbackId], references: [id])
   serviceFeedbackId Int
   created_at        DateTime        @default(now())
   updated_at        DateTime        @updatedAt
 }
 
-model Services {
+model services {
   id               Int               @unique @default(autoincrement())
   title            String
-  office           Offices?          @relation(fields: [relatedOfficeId], references: [id])
+  office           offices?          @relation(fields: [relatedOfficeId], references: [id])
   relatedOfficeId  Int?
-  serviceKind      ServiceKind?      @relation(fields: [serviceKindId], references: [id])
+  serviceKind      serviceKind?      @relation(fields: [serviceKindId], references: [id])
   serviceKindId    Int?
-  serviceFeedbacks ServiceFeedback[]
+  serviceFeedbacks serviceFeedback[]
   created_at       DateTime          @default(now())
   updated_at       DateTime          @updatedAt
 }
 
-model ServiceKind {
+model serviceKind {
   id               Int               @unique @default(autoincrement())
   description      String?
-  serviceFeedbacks ServiceFeedback[]
+  serviceFeedbacks serviceFeedback[]
   created_at       DateTime          @default(now())
   updated_at       DateTime          @updatedAt
-  Services         Services[]
+  Services         services[]
 }
 
-model Logs {
+model logs {
   id                Int             @unique @default(autoincrement())
-  user              Submitters      @relation(fields: [userId], references: [id])
+  user              submitters      @relation(fields: [userId], references: [id])
   userId            Int
-  serviceFeedback   ServiceFeedback @relation(fields: [serviceFeedbackId], references: [id])
+  serviceFeedback   serviceFeedback @relation(fields: [serviceFeedbackId], references: [id])
   serviceFeedbackId Int
   created_at        DateTime        @default(now())
 }
 
-model Categories {
+model categories {
   id               Int                @unique @default(autoincrement())
   title            String
   qualityDimension String
-  FeedbackQuestion FeedbackQuestion[]
-  Questions        Questions[]
+  FeedbackQuestion feedbackQuestion[]
+  Questions        questions[]
   created_at       DateTime           @default(now())
   updated_at       DateTime           @updatedAt
 }
 
-model Questions {
+model questions {
   id               Int                @unique @default(autoincrement())
   title            String?            @unique
   description      String?            @db.Text
-  category         Categories         @relation(fields: [categoryId], references: [id])
+  category         categories         @relation(fields: [categoryId], references: [id])
   categoryId       Int
-  FeedbackQuestion FeedbackQuestion[]
+  FeedbackQuestion feedbackQuestion[]
   created_at       DateTime           @default(now())
   updated_at       DateTime           @updatedAt
 }
 
-model Offices {
+model offices {
   id              Int               @unique @default(autoincrement())
   title           String
-  ServiceFeedback ServiceFeedback[]
+  ServiceFeedback serviceFeedback[]
   created_at      DateTime          @default(now())
   updated_at      DateTime          @updatedAt
-  Services        Services[]
+  Services        services[]
   users           users[]
 }
