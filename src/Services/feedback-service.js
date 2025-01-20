@@ -200,7 +200,7 @@ async function submitFeedback(feedbackData) {
       };
     }
 
-    // Fetch officeName from the database based on officeId
+    // Fetch service from the database based on serviceId
     const serviceRelated = await prisma.services.findUnique({
       where: {
         id: feedbackData.serviceFeedback.serviceId,
@@ -275,6 +275,8 @@ async function submitFeedback(feedbackData) {
         ClientType: { connect: { id: feedbackData.submitter.clientTypeId } },
         // Age: { connect: { id: feedbackData.submitter.ageId } },
         submittername: submitter.name,
+        email: submitter.email,
+        sex: submitter.sex,
         overallComment: feedbackData.serviceFeedback.overallComment,
         uniqueIdentifier: uuidv4(),
         averageRating: parseFloat(formattedAverageRating),

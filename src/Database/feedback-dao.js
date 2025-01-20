@@ -154,22 +154,35 @@ async function dateRangeFiltered(startDate, endDate, officeId) {
 
     // Check if officeId is provided
     if (officeId) {
-      // If officeId is provided, add officeId condition
+      // Add officeId condition to whereCondition
       if (whereCondition.AND) {
-        // If other conditions exist, add officeId condition as part of the AND condition
-        whereCondition.AND.push({ officeId: officeId });
+        whereCondition.AND.push({ officeId });
       } else {
-        // If no other conditions exist, initialize the whereCondition with only the officeId condition
-        whereCondition = { officeId: officeId };
+        whereCondition = { officeId };
       }
     }
 
-    // Fetch data using the where condition
+    // Fetch data with submitter's email included
     const data = await prisma.serviceFeedback.findMany({
-      where: whereCondition, // Use the where condition
+      where: whereCondition,
+      include: {
+        submitter: {
+          select: {
+            email: true,
+          },
+        },
+      },
     });
 
-    return data;
+    // Add submitter's email to the response objects
+    const formattedData = data.map((feedback) => ({
+      ...feedback,
+      submitterEmail: feedback.submitter.email,
+    }));
+
+    console.log(formattedData);
+
+    return formattedData;
   } catch (error) {
     console.error("Error in dateRangeFiltered:", error);
     throw error;
