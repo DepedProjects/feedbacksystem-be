@@ -2,6 +2,7 @@ const feedbackDao = require("../Database/feedback-dao");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const { v4: uuidv4 } = require("uuid");
+const dayjs = require("dayjs");
 
 function formatDateStrings(feedback) {
   if (feedback.created_at) {
@@ -151,33 +152,39 @@ async function fetchAllServiceKinds() {
   }
 }
 
+function determineAgeBracket(specAge) {
+  if (specAge <= 19) return "19 or lower";
+  if (specAge >= 20 && specAge <= 34) return "20-34";
+  if (specAge >= 35 && specAge <= 49) return "35-49";
+  if (specAge >= 50 && specAge <= 64) return "50-64";
+  return "65 or higher";
+}
+
 //submit feedback
 async function submitFeedback(feedbackData) {
   try {
-    // Check for existing submitter based on email
-    const existingSubmitter = await prisma.submitters.findFirst({
-      where: {
-        email: feedbackData.submitter.email,
+    // Determine ageBracket based on specAge
+    const ageBracket = determineAgeBracket(feedbackData.submitter.specAge);
+    console.log("Determined age bracket:", ageBracket);
+
+    const submitterName = feedbackData.submitter.name || "anonymous";
+    const submitterEmail = feedbackData.submitter.email || `anonymous`;
+
+    // Check or create the submitter
+    const submitter = await prisma.submitters.create({
+      data: {
+        name: submitterName || "anonymous",
+        email: submitterEmail || `anonymous`,
+        sex: feedbackData.submitter.sex || null,
+        specAge: feedbackData.submitter.specAge
+          ? parseInt(feedbackData.submitter.specAge)
+          : null,
+        ageBracket: ageBracket || null,
+        clientTypeId: feedbackData.submitter.clientTypeId || null,
       },
     });
 
-    let submitter;
-    if (existingSubmitter) {
-      // Use the existing submitter if found
-      submitter = existingSubmitter;
-    } else {
-      // Create a new submitter if not found
-      submitter = await feedbackDao.createSubmitter({
-        name: feedbackData.submitter.name,
-        email: feedbackData.submitter.email,
-        sex: feedbackData.submitter.sex,
-        // ageId: feedbackData.submitter.ageId,
-        specAge: parseInt(feedbackData.submitter.specAge),
-        clientTypeId: feedbackData.submitter.clientTypeId, // Pass clientTypeId here
-      });
-    }
-
-    // Check for duplicate feedback using the unique identifier
+    // Check for duplicate feedback based on the identifier
     const serviceFeedbackIdentifier = JSON.stringify({
       submitterId: submitter.id,
       serviceId: feedbackData.serviceFeedback.serviceId || null,
@@ -188,10 +195,7 @@ async function submitFeedback(feedbackData) {
     });
 
     const existingFeedback = await prisma.serviceFeedback.findFirst({
-      where: {
-        submitterId: submitter.id,
-        uniqueIdentifier: serviceFeedbackIdentifier,
-      },
+      where: { uniqueIdentifier: serviceFeedbackIdentifier },
     });
 
     if (existingFeedback) {
@@ -200,86 +204,62 @@ async function submitFeedback(feedbackData) {
       };
     }
 
-    // Fetch service from the database based on serviceId
-    const serviceRelated = await prisma.services.findUnique({
-      where: {
-        id: feedbackData.serviceFeedback.serviceId,
-      },
-      select: {
-        title: true,
-        serviceKind: {
+    // Fetch related data (services, office, clientType)
+    const [serviceRelated, officeRelated, relatedClientType] =
+      await Promise.all([
+        prisma.services.findUnique({
+          where: { id: feedbackData.serviceFeedback.serviceId },
           select: {
-            description: true,
+            title: true,
+            serviceKind: { select: { description: true } },
           },
-        },
-      },
+        }),
+        prisma.offices.findUnique({
+          where: { id: feedbackData.serviceFeedback.officeId },
+          select: { title: true },
+        }),
+        prisma.clientType.findUnique({
+          where: { id: feedbackData.submitter.clientTypeId },
+          select: { type: true },
+        }),
+      ]);
+
+    console.log("Fetched related data:", {
+      serviceRelated,
+      officeRelated,
+      relatedClientType,
     });
 
-    // Fetch officeName from the database based on officeId
-    const officeRelated = await prisma.offices.findUnique({
-      where: {
-        id: feedbackData.serviceFeedback.officeId,
-      },
-      select: {
-        title: true,
-      },
-    });
+    // Calculate the average rating
+    const validRatings = feedbackData.data.filter(
+      (question) => question.rating > 0
+    );
+    const formattedAverageRating = validRatings.length
+      ? parseFloat(
+          (
+            validRatings.reduce(
+              (total, question) => total + question.rating,
+              0
+            ) / validRatings.length
+          ).toFixed(2)
+        )
+      : 0.0;
 
-    // Fetch relatedClientType from the database based on clientTypeId
-    const relatedClientType = await prisma.clientType.findUnique({
-      where: {
-        id: feedbackData.submitter.clientTypeId,
-      },
-      select: {
-        type: true,
-      },
-    });
-
-    // Fetch ageBracket from the database based on ageId
-    // const ageBracket = await prisma.age.findUnique({
-    //   where: {
-    //     id: feedbackData.submitter.ageId,
-    //   },
-    //   select: {
-    //     description: true,
-    //   },
-    // });
-
-    // Calculate average rating from the provided ratings
-    const averageRating =
-      feedbackData.data.reduce(
-        (total, question) => total + question.rating,
-        0
-      ) / feedbackData.data.length;
-
-    const formattedAverageRating = averageRating.toFixed(2);
-
-    // Create serviceFeedback using the existing or new submitter
+    // Create the serviceFeedback
     const serviceFeedback = await prisma.serviceFeedback.create({
       data: {
-        submitter: {
-          connect: {
-            id: submitter.id,
-          },
-        },
+        submitter: { connect: { id: submitter.id } },
         officeVisited: {
-          connect: {
-            id: feedbackData.serviceFeedback.officeId,
-          },
+          connect: { id: feedbackData.serviceFeedback.officeId },
         },
-        service: {
-          connect: {
-            id: feedbackData.serviceFeedback.serviceId,
-          },
-        },
+        service: { connect: { id: feedbackData.serviceFeedback.serviceId } },
         ClientType: { connect: { id: feedbackData.submitter.clientTypeId } },
-        // Age: { connect: { id: feedbackData.submitter.ageId } },
-        submittername: submitter.name,
+        submittername: submitter.name || "anonymous",
         email: submitter.email,
         sex: submitter.sex,
         overallComment: feedbackData.serviceFeedback.overallComment,
-        uniqueIdentifier: uuidv4(),
-        averageRating: parseFloat(formattedAverageRating),
+        uniqueIdentifier: serviceFeedbackIdentifier,
+        averageRating: formattedAverageRating,
         responsiveness: 0,
         reliability: 0,
         accessAndFacilities: 0,
@@ -292,20 +272,21 @@ async function submitFeedback(feedbackData) {
         awareCC: feedbackData.citizencharter.awareCC,
         seeCC: feedbackData.citizencharter.seeCC,
         useCC: feedbackData.citizencharter.useCC,
-        serviceDesc: serviceRelated.title,
-        officeName: officeRelated.title,
-        relatedClientType: relatedClientType.type,
-        // ageBracket: ageBracket.description,
+        serviceDesc: serviceRelated?.title || null,
+        officeName: officeRelated?.title || null,
+        relatedClientType: relatedClientType?.type || null,
         specificAge: submitter.specAge,
-        serviceKindDescription: serviceRelated.serviceKind?.description, // Add serviceKindDescription
+        ageBracket: submitter.ageBracket,
+        serviceKindDescription:
+          serviceRelated?.serviceKind?.description || null,
         otherService: feedbackData.serviceFeedback.otherService,
         startTime: feedbackData.serviceFeedback.startTime
-          ? new Date(feedbackData.serviceFeedback.startTime).toISOString()
-          : new Date().toISOString(),
+          ? dayjs(feedbackData.serviceFeedback.startTime).toISOString()
+          : dayjs().toISOString(),
       },
     });
 
-    const createdDate = serviceFeedback.created_at.toLocaleDateString();
+    console.log("Service feedback created:", serviceFeedback);
 
     // Update serviceFeedback fields based on categoryId
     feedbackData.data.forEach((question) => {
@@ -328,51 +309,43 @@ async function submitFeedback(feedbackData) {
       data: serviceFeedback,
     });
 
-    // Create feedback questions
-    const feedbackQuestions = feedbackData.data.map(async (question) => {
-      return prisma.feedbackQuestion.create({
-        data: {
-          ...question,
-          serviceFeedbackId: serviceFeedback.id,
-        },
-      });
-    });
-
+    // Map feedback questions to the database
+    const feedbackQuestions = feedbackData.data.map((question) =>
+      prisma.feedbackQuestion.create({
+        data: { ...question, serviceFeedbackId: serviceFeedback.id },
+      })
+    );
     await Promise.all(feedbackQuestions);
 
     const formattedResult = {
-      formResponse: {
-        consent: feedbackData.formResponse.consent,
-      },
+      formResponse: { consent: feedbackData.formResponse.consent },
       submitter: {
-        name: feedbackData.submitter.name,
-        email: feedbackData.submitter.email,
-        relatedClientType: relatedClientType.type,
-        // ageBracket: ageBracket.description,
+        name: submitter.name,
+        email: submitter.email,
+        relatedClientType: relatedClientType?.type,
         specAge: feedbackData.submitter.specAge,
+        ageBracket: feedbackData.ageBracket,
         sex: feedbackData.submitter.sex,
       },
-      citizencharter: {
-        awareCC: feedbackData.citizencharter.awareCC,
-        seeCC: feedbackData.citizencharter.seeCC,
-        useCC: feedbackData.citizencharter.useCC,
-      },
+      citizencharter: feedbackData.citizencharter,
       serviceFeedback: {
-        id: feedbackData.serviceFeedback.id,
+        id: serviceFeedback.id,
         serviceKindId: feedbackData.serviceFeedback.serviceKindId,
-        serviceKindDescription: serviceRelated.serviceKind?.description, // Include serviceKindDescription
+        serviceKindDescription: serviceRelated.serviceKind?.description,
         otherService: feedbackData.otherService,
         officeId: feedbackData.serviceFeedback.officeId,
-        officeName: officeRelated.title,
+        officeName: officeRelated?.title,
         serviceId: feedbackData.serviceFeedback.serviceId,
-        serviceDesc: serviceRelated.title,
+        serviceDesc: serviceRelated?.title,
         overallComment: feedbackData.serviceFeedback.overallComment,
         startTime: feedbackData.serviceFeedback.startTime,
       },
       data: feedbackData.data,
-      averageRating: parseFloat(formattedAverageRating),
+      averageRating: formattedAverageRating,
       created_at: createdDate,
     };
+
+    console.log("Formatted result:", formattedResult);
 
     return formattedResult;
   } catch (error) {
@@ -380,6 +353,7 @@ async function submitFeedback(feedbackData) {
     throw new Error("Error in Process");
   }
 }
+
 // Helper function to get the category field based on categoryId
 function getCategoryField(categoryId) {
   const categoryFieldMap = {

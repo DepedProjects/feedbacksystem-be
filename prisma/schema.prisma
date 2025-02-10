@@ -27,6 +27,7 @@ model submitters {
   email            String
   age              age?              @relation(fields: [ageId], references: [id])
   ageId            Int?
+  ageBracket       String?
   specAge          Int?
   clientType       clientType?       @relation(fields: [clientTypeId], references: [id])
   clientTypeId     Int?
@@ -57,6 +58,7 @@ model serviceFeedback {
   ClientType             clientType?        @relation(fields: [typeId], references: [id])
   typeId                 Int?
   Age                    age?               @relation(fields: [ageBracketId], references: [id])
+  sex                    String?
   ageBracketId           Int?
   specificAge            Int?
   serviceKind            serviceKind?       @relation(fields: [serviceKindId], references: [id])

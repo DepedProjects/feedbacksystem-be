@@ -102,6 +102,7 @@ async function createSubmitter(data) {
         clientType: { connect: { id: data.clientTypeId } },
         // age: { connect: { id: data.ageId } },
         specAge: data.specAge,
+        ageBracket: data.ageBracket,
         sex: data.sex,
       },
     });
@@ -179,8 +180,6 @@ async function dateRangeFiltered(startDate, endDate, officeId) {
       ...feedback,
       submitterEmail: feedback.submitter.email,
     }));
-
-    console.log(formattedData);
 
     return formattedData;
   } catch (error) {

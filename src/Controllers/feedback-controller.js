@@ -347,11 +347,16 @@ feedBackRouter.post("/submitFeedback", async (req, res) => {
   try {
     const feedbackData = req.body;
 
+    console.log(
+      "Received feedback data:",
+      JSON.stringify(feedbackData, null, 2)
+    );
+
     const createdFeedback = await feedBackService.submitFeedback(feedbackData);
 
     res.status(201).json(createdFeedback);
   } catch (error) {
-    console.error(error);
+    console.error("Error in submitFeedback", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
